@@ -1,6 +1,7 @@
 ;; Tests for the eslint Rule Semi
 ;; http://eslint.org/docs/rules/semi
 
+(require 'f)
 (require 'ert)
 (require 'noflet)
 

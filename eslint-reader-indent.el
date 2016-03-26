@@ -1,4 +1,4 @@
-;;; eslint-reader-indent.el --- Logic for the semi rule in ESLint
+;;; eslint-reader-indent.el --- Logic for the indent rule in ESLint
 
 ;; Copyright (C) 2016  Dominic Charlesworth <dgc336@gmail.com>
 
