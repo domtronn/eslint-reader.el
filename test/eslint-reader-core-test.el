@@ -194,6 +194,13 @@
            (eslint-reader-rule (&rest any) t))
     (should (equal nil (er? 'rule "bing")))))
 
+(ert-deftest should-return-nil-if-default-is-defined-but-no-prefix-is-given ()
+  "When we query `er` which has a default value but everything is disabled/not present we should return nil"
+  (noflet ((eslint-reader? (&rest any) nil)
+		   (eslint-reader-rule-default (&rest any) "default rule value")
+           (eslint-reader-rule (&rest any) t))
+    (should (equal nil (er? 'rule)))))
+
 ;;; eslint-reader-semi-test.el ends here
 ;; Local Variables:
 ;; indent-tabs-mode: nil

@@ -78,8 +78,8 @@ that rule."
     (unless (fboundp rule-f) (error "Function for rule `%s` is not defined" rule))
     (cond
      ((eslint-reader?) (funcall rule-f pfx))
-     ((fboundp rule-v) (funcall rule-v))
-     ((boundp rule-v)  (symbol-value rule-v))
+     ((and pfx (fboundp rule-v)) (funcall rule-v))
+     ((and pfx (boundp rule-v))  (symbol-value rule-v))
      (t nil))))
 
 (defun er!? (rule)
