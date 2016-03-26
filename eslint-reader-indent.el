@@ -24,9 +24,7 @@
 
 (require 'js2-mode)
 
-(defvar eslint-reader-indent-default-tabs nil
-	"These are the default settings for for when indent is enabled.")
-
+(defalias 'eslint-reader-indent-default 'eslint-reader--make-elisp-indent-string)
 (defun eslint-reader--make-elisp-indent-string ()
   "Make the the indentation string based on elisp values."
   (if indent-tabs-mode "	"
