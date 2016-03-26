@@ -22,6 +22,21 @@
 
 ;;; Code:
 
+(defvar eslint-reader-space-before-function-paren-default ""
+  "Default value for the eslint rule for space-before-function-paren.")
+
+(defun eslint-reader-space-before-function-paren (&optional pfx)
+    "Whether or not to add space before function paren.
+Given a PFX it will return the character to insert instead."
+	(interactive "P")
+	(let* ((rule (eslint-reader--parse-rule :space-before-function-paren))
+         (enabled (plist-get rule :enabled))
+         (setting (plist-get rule :setting)))
+    (cond
+     ((and enabled (equal setting "always")) (if pfx " " t))
+     ((and enabled (equal setting "never"))  (if pfx "" nil))
+     (t                                      (if pfx eslint-reader-space-before-function-paren-default 'default)))))
+
 (provide 'eslint-reader-space-before-function-paren)
 
 ;;; eslint-reader-space-before-function-paren.el ends here
