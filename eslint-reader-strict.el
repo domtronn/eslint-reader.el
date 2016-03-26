@@ -22,6 +22,22 @@
 
 ;;; Code:
 
+(require eslint-reader-quotes)
+
+(defun eslint-reader-strict (&optional pfx)
+  "Whether or not you need a 'use strict' statement.
+Returns nil if statement is not needed, otherwise t.
+
+When given a PFX it will return the string to insert with quote
+characters."
+  (interactive "P")
+  (let* ((rule (eslint-reader--parse-rule :strict))
+         (enabled (plist-get rule :enabled))
+         (setting (plist-get rule :setting))
+		 (qc (eslint-reader-quotes)))
+	(cond
+	 ((and enabled (equal setting "never")) (if pfx "" nil))
+	 (t (if pfx (format "%suse strict%s" qc qc) t)))))
 
 (provide 'eslint-reader-strict)
 

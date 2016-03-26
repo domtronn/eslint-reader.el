@@ -9,6 +9,26 @@
 (require 'eslint-reader-core (f-expand "eslint-reader-core.el" code-base-path))
 (require 'eslint-reader-strict (f-expand "eslint-reader-strict.el" code-base-path))
 
+(ert-deftest should-return-t-when-the-setting-is-on ()
+  "When the `strict` rule is on, it should return t and the use strict string"
+  (noflet ((eslint-reader--read (&rest any) '(:strict 2))
+		   (eslint-reader-quotes (&rest any) "<"))
+    (should (equal t (eslint-reader-strict)))
+    (should (equal "<use strict<" (eslint-reader-strict t)))))
+
+(ert-deftest should-return-t-when-the-rule-isnt-defined ()
+  "When the `strict` rule is on, it should return t and the use strict string"
+  (noflet ((eslint-reader--read (&rest any) '())
+		   (eslint-reader-quotes (&rest any) "<"))
+    (should (equal t (eslint-reader-strict)))
+    (should (equal "<use strict<" (eslint-reader-strict t)))))
+
+(ert-deftest should-return-nil-when-the-setting-is-on-and-set-to-never ()
+  "When the `strict` rule is on and set to `never`, it should return nil and provide a blank string"
+  (noflet ((eslint-reader--read (&rest any) '(:strict [2 "never"]))
+		   (eslint-reader-quotes (&rest any) "<"))
+    (should (equal nil (eslint-reader-strict)))
+    (should (equal "" (eslint-reader-strict t)))))
 
 ;;; eslint-reader-strict-test.el ends here
 ;; Local Variables:
