@@ -64,7 +64,7 @@ Given a PFX it will return the semi colon character."
   (interactive "P")
   (let ((rule (plist-get (eslint-reader--read) :semi)))
     (if (and (vectorp rule) (equal (elt rule 1) "always"))
-      (if pfx ";" t)
+        (if pfx ";" t)
       (if pfx "" nil))))
 
 (defun eslint-reader-quotes (&optional pfx)
@@ -96,8 +96,8 @@ Returns nil if statement is not needed, otherwise t.  When given
 a PFX it will return the string to insert with quote
 characters."
   (interactive "P")
-  (let ((rule  (plist-get (eslint-reader--read) :strict))
-        (qc    (eslint-reader-quotes t)))
+  (let ((rule (plist-get (eslint-reader--read) :strict))
+        (qc   (eslint-reader-quotes t)))
     (if (and (vectorp rule) (not (equal (elt rule 1) "never")))
       (if pfx (format "%suse strict%s" qc qc) t)
       (if pfx "" t))))
@@ -110,6 +110,52 @@ Given a PFX it will return the character to insert."
     (if (and (vectorp rule) (equal (elt rule 1) "always"))
       (if pfx " " t)
       (if pfx "" nil))))
+
+;;; Padded Block rules
+
+(defun eslint-reader-padded-blocks (&optional pfx)
+  "Whether to pad blocks of code.
+Given a PFX it will return the character to insert."
+  (interactive "P")
+  (let ((rule (plist-get (eslint-reader--read) :padded-blocks)))
+    (if (and rule (> (elt rule 0) 0))
+      (cond
+       ((equal (elt rule 1) "always") (if pfx "\n" t))
+       ((equal (elt rule 1) "never") (if pfx "" nil))
+       (t (elt rule 1)))
+      (if pfx "" nil))))
+
+(defun eslint-reader-padded-blocks-blocks (&optional pfx)
+  "Whether to pad actual blocks.
+This is the version for the more granular settings.
+If PFX is provided, provide the character"
+  (interactive "P")
+  (eslint-reader--padded-blocks :blocks pfx))
+
+(defun eslint-reader-padded-blocks-switches (&optional pfx)
+  "Whether to pad switch statements.
+If PFX is provided, provide the character"
+  (interactive "P")
+  (eslint-reader--padded-blocks :switches pfx))
+
+(defun eslint-reader-padded-blocks-classes (&optional pfx)
+  "Whether to pad classes.
+If PFX is provided, provide the character"
+  (interactive "P")
+  (eslint-reader--padded-blocks :classes pfx))
+
+(defun eslint-reader--padded-blocks (prop &optional pfx)
+  "Whether to pad PROP.
+This is the logic for the more granular settings.
+If PFX is provided, provide the character instead."
+  (let* ((result (eslint-reader-padded-blocks pfx))
+         (setting (plist-get result prop)))
+    (if (listp result)
+      (if (equal setting "always")
+        (if pfx "\n" t)
+        (if pfx "" nil))
+      result)))
+
 
 (defun eslint-reader-space-before-function-paren (&optional pfx)
   "Whether or not to add space before function paren.
