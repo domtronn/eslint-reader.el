@@ -165,6 +165,15 @@
       (er? 'rule "bing")
       (should (equal rule-call "bing")))))
 
+(ert-deftest should-return-default-values-when-an-eslint-file-is-not-found ()
+  "When we do not correctly find an eslintrc file then, we should not try to read eslintrc file, and instead return the default character"
+  (let ((rule-call "unchanged")
+        (eslint-reader-rule-default "default rule value"))
+    (noflet ((eslint-reader? (&rest any) nil)
+             (eslint-reader-rule (pfx) (setq rule-call pfx)))
+      (should (equal (er? 'rule "bing") "default rule value"))
+      (should (equal rule-call "unchanged")))))
+
 ;;; eslint-reader-semi-test.el ends here
 ;; Local Variables:
 ;; indent-tabs-mode: nil

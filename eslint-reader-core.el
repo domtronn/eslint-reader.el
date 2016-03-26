@@ -71,9 +71,10 @@ When given an ESLINTRC file, it should locate this file over `flycheck-eslintrc`
   "Read RULE for the eslintrc file.
 When given a PFX, return the character that should be used by
 that rule."
-  (interactive)
-  (when (eslint-reader?)
-    (funcall (intern (format "eslint-reader-%s" rule)) pfx)))
+  (interactive "P")
+  (let ((rule-f (intern (format "eslint-reader-%s" rule)))
+        (rule-v (intern (format "eslint-reader-%s-default" rule))))
+    (if (eslint-reader?) (funcall rule-f pfx) (symbol-value rule-v))))
 
 (provide 'eslint-reader-core)
 
