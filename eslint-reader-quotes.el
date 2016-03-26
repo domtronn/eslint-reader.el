@@ -30,11 +30,13 @@
 (defun eslint-reader--dominant-quotes ()
   "Calculates the dominating quote style in the file.
 Used for the default behaviour if quotes is not set or is set to consistent."
-  (let* ((matches (list `(,(count-matches "'" (point-min) (point-max)) ("'" single))
-						`(,(count-matches "\"" (point-min) (point-max)) ("\"" double))
-						`(,(count-matches "`" (point-min) (point-max)) ("`" backtick))))
-		 (sorted (--sort (< (-elem-index (cadadr it) eslint-reader-quote-priority)
-							(-elem-index (cadadr other) eslint-reader-quote-priority)) matches)))
+  (let* ((matches
+		  (list `(,(count-matches "'" (point-min) (point-max)) ("'" single))
+				`(,(count-matches "\"" (point-min) (point-max)) ("\"" double))
+				`(,(count-matches "`" (point-min) (point-max)) ("`" backtick))))
+		 (sorted
+		  (--sort (< (-elem-index (cadadr it) eslint-reader-quote-priority)
+					 (-elem-index (cadadr other) eslint-reader-quote-priority)) matches)))
     (cadr (--max-by (> (car it) (car other)) sorted))))
 
 (defun eslint-reader-quotes (&optional pfx)
