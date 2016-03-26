@@ -35,6 +35,18 @@ eslint takes precedence.
 
 There is also a shorter alias for this function as `er?`
 
+#### Prefix Arguments
+
+Calling any of the rule functions with a prefix argument will then
+provide you with the _character_ to insert for that rule, for example -
+
+```elisp
+(eslint-reader-semi t)   ;; Returns ';' if the rule says to use semi colons
+```
+
+This can be used to make formatting similar.  There is also a shorter
+alias for this function called `er!?`
+
 #### Indent
 
 Indentation is a special case, there are _two_ functions describing how indentation is defined, these are -

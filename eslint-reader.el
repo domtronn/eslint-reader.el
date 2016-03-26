@@ -61,7 +61,7 @@
   "Whether to add semi colons.
 Returns t if semi colons should be used, nil otherwise.
 Given a PFX it will return the semi colon character."
-  (interactive)
+  (interactive "P")
   (let ((rule (plist-get (eslint-reader--read) :semi)))
     (if (and (vectorp rule) (equal (elt rule 1) "always"))
       (if pfx ";" t)
@@ -71,7 +71,7 @@ Given a PFX it will return the semi colon character."
   "The style of quotation used.
 Returns 'single, 'double or 'backtick.  When given a PFX, it will
 return the quote character to be used."
-  (interactive)
+  (interactive "P")
   (let* ((rule    (plist-get (eslint-reader--read) :quotes))
          (setting (if (vectorp rule) (elt rule 0) rule)))
     (if (and rule (> setting 0))
@@ -86,42 +86,53 @@ return the quote character to be used."
 Returns nil if statement is not needed, otherwise t.  When given
 a PFX it will return the string to insert with quote
 characters."
-  (interactive)
+  (interactive "P")
   (let ((rule  (plist-get (eslint-reader--read) :strict))
         (qc    (eslint-reader-quotes t)))
     (if (and (vectorp rule) (not (equal (elt rule 1) "never")))
       (if pfx (format "%suse strict%s" qc qc) t)
       (if pfx "" t))))
 
-(defun eslint-reader-block-spacing ()
-  "Whether or not you should have block spacing"
-  (interactive)
+(defun eslint-reader-block-spacing (&optional pfx)
+  "Whether or not you should have block spacing.
+Given a PFX it will return the character to insert."
+  (interactive "P")
   (let ((rule (plist-get (eslint-reader--read) :block-spacing)))
-    (if (vectorp rule) (equal (elt rule 1) "always") t)))
+    (if (and (vectorp rule) (equal (elt rule 1) "always"))
+      (if pfx " " t)
+      (if pfx "" nil))))
 
-(defun eslint-reader-space-before-function-paren ()
-  "Whether or not to add space before function paren."
-  (interactive)
+(defun eslint-reader-space-before-function-paren (&optional pfx)
+  "Whether or not to add space before function paren.
+Given a PFX it will return the character to insert instead."
+  (interactive "P")
   (let ((rule (plist-get (eslint-reader--read) :space-before-function-paren)))
-    (if (vectorp rule) (equal (elt rule 1) "always") nil)))
+    (if (and (vectorp rule) (equal (elt rule 1) "always"))
+      (if pfx " " t)
+      (if pfx "" nil))))
 
 ;; Calling Functions
 
 (defun eslint-reader--depth (path)
-  "Get the depth of PATH"
+  "Get the depth of PATH."
   (length (split-string (expand-file-name path) "/")))
 
 (defalias 'er? 'eslint-reader?)
-(defun eslint-reader? (&optional f)
+(defun eslint-reader? (&optional f pfx)
   "Guard function to check whether you should be using eslint.
-Call the namespaced function rule F if criteria is met."
+Call the namespaced function rule F if criteria is met.
+PFX is passed through to the rule functional call."
   (when (buffer-file-name)
     (let ((jshintrc-loc (locate-dominating-file (buffer-file-name) flycheck-jshintrc))
           (eslintrc-loc (locate-dominating-file (buffer-file-name) flycheck-eslintrc)))
       (when (or (and eslintrc-loc jshintrc-loc
-                     (> (eslint-reader--depth eslintrc-loc) (eslint-reader--depth jshintrc-loc)))
+                     (>= (eslint-reader--depth eslintrc-loc) (eslint-reader--depth jshintrc-loc)))
                 (and eslintrc-loc (not jshintrc-loc)))
-        (if f (funcall (intern (format "eslint-reader-%s" f))) t)))))
+        (if f (funcall (intern (format "eslint-reader-%s" f)) pfx) t)))))
+
+(defun er!? (f)
+  "Alias for passing prefix to `eslint-reader?` with `F`."
+  (eslint-reader? f t))
 
 ;;; eslint-reader.el ends here
 ;; Local Variables:
