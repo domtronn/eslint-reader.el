@@ -81,6 +81,11 @@ that rule."
      ((boundp rule-v)  (symbol-value rule-v))
      (t nil))))
 
+(defun er!? (rule)
+  "Call through to `er?` for RULE with a static prefix argument.
+This function can be used for simple snippet evaluation to get the value you want."
+  (er? rule t))
+
 (provide 'eslint-reader-core)
 
 ;;; eslint-reader-core.el ends here
