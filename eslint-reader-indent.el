@@ -22,6 +22,30 @@
 
 ;;; Code:
 
+(require 'js2-mode)
+
+(defvar eslint-reader-indent-default-tabs nil
+	"These are the default settings for for when indent is enabled.")
+
+(defun eslint-reader--make-elisp-indent-string ()
+  "Make the the indentation string based on elisp values."
+  (if indent-tabs-mode "	"
+    (make-string (or js-indent-level 4) ? )))
+
+(defun eslint-reader-indent (&optional pfx)
+  "Whether or not eslint is using tabs.
+When given a PFX, return the indentation character."
+  (let* ((rule (eslint-reader-parse-rule :indent))
+         (enabled (plist-get rule :enabled))
+         (setting (plist-get rule :setting)))
+    (cond
+     ((not enabled)
+      (if pfx
+        (eslint-reader--make-elisp-indent-string)
+        indent-tabs-mode))
+     ((and enabled (not setting))
+      (if pfx "    " nil)))))                      ;; Default 4 space indent and spaces
+
 (provide 'eslint-reader-indent)
 
 ;;; eslint-reader-indent.el ends here

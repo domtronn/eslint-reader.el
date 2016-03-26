@@ -9,6 +9,24 @@
 (require 'eslint-reader-indent (f-expand "eslint-reader-indent.el" code-base-path))
 
 
+(ert-deftest should-return-as-expected-when-setting-is-on ()
+  "When the `indent` rule is set on it should revert to the eslint defaults"
+  (noflet ((eslint-reader--read (&rest any) '(:indent 2)))
+    (should (equal nil (eslint-reader-indent)))
+    (should (equal "    " (eslint-reader-indent t)))))
+
+(ert-deftest should-return-base-elisp-indentation-values-when-setting-is-off ()
+  "When the `indent` rule is off it should revert to the elisp defaults `indent-tabs-mode` and `js-indent-level`"
+  (noflet ((eslint-reader--read (&rest any) '(:indent 0)))
+    (let ((indent-tabs-mode nil)
+          (js-indent-level 9)
+          (expected-indent-char (make-string 9 ? )))
+      (should (equal indent-tabs-mode (eslint-reader-indent)))
+      (should (equal expected-indent-char (eslint-reader-indent t))))
+    (let ((indent-tabs-mode t))
+      (should (equal indent-tabs-mode (eslint-reader-indent)))
+      (should (equal "	" (eslint-reader-indent t))))))
+
 ;;; eslint-reader-indent-test.el ends here
 ;; Local Variables:
 ;; indent-tabs-mode: nil
