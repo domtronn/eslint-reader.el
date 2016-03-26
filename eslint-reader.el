@@ -36,6 +36,14 @@
          (json-plist (json-read-file eslint-path)))
     (plist-get json-plist :rules)))
 
+(defun eslint-reader-parse-rule (prop)
+  "Parse the rule PROP."
+  (let ((rule (plist-get (eslint-reader--read) prop)))
+    (cond
+     ((vectorp rule) `(:enabled ,(> (elt rule 0) 0) :setting ,(elt rule 1)))
+     ((numberp rule) `(:enabled ,(> rule 0)))
+     ((eq nil rule)  '(:enabled nil)))))
+
 ;; Rule Functions
 
 ;; Called with prefix arguments, rule functions should return the
