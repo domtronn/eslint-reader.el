@@ -36,15 +36,7 @@
 (require 'eslint-reader-semi)
 (require 'eslint-reader-quotes)
 (require 'eslint-reader-strict)
-
-(defun eslint-reader-block-spacing (&optional pfx)
-  "Whether or not you should have block spacing.
-Given a PFX it will return the character to insert."
-  (interactive "P")
-  (let ((rule (plist-get (eslint-reader--read) :block-spacing)))
-    (if (and (vectorp rule) (equal (elt rule 1) "always"))
-      (if pfx " " t)
-      (if pfx "" nil))))
+(require 'eslint-reader-block-spacing)
 
 ;;; Padded Block rules
 
