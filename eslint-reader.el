@@ -72,14 +72,23 @@ Given a PFX it will return the semi colon character."
 Returns 'single, 'double or 'backtick.  When given a PFX, it will
 return the quote character to be used."
   (interactive "P")
-  (let* ((rule    (plist-get (eslint-reader--read) :quotes))
-         (setting (if (vectorp rule) (elt rule 0) rule)))
+  (let* ((rule     (plist-get (eslint-reader--read) :quotes))
+         (setting  (if (vectorp rule) (elt rule 0) rule))
+         (dominant (eslint-reader--dominant-quotes)))
     (if (and rule (> setting 0))
       (cond
        ((equal (elt rule 1) "single") (if pfx "'" 'single))
        ((equal (elt rule 1) "double") (if pfx "\"" 'double))
        ((equal (elt rule 1) "backtick") (if pfx "`" 'backtick)))
-      (if pfx "'" 'single))))
+      (if pfx (car dominant) (cadr dominant)))))
+
+(defun eslint-reader--dominant-quotes ()
+  "Calculates the dominating quote style in the file.
+Used for the default behaviour if quotes is not set or is set to consistent."
+  (if (> (count-matches "\"" (point-min) (point-max))
+         (count-matches "'" (point-min) (point-max)))
+    '("\"" 'double)
+    '("'" 'single)))
 
 (defun eslint-reader-strict (&optional pfx)
   "Whether or not you need a 'use strict' statement.
