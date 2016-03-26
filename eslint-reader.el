@@ -3,7 +3,9 @@
 ;; Copyright (C) 2016  Dominic Charlesworth <dgc336@gmail.com>
 
 ;; Author: Dominic Charlesworth <dgc336@gmail.com>
-;; Keywords: lisp
+;; Package-Requires: ((dash "2.12.1") (flycheck "0.16") (emacs "24.3") (js2-mode "))
+;; URL: https://github.com/domtronn/eslint-reader.el
+;; Keywords: convenient, lisp
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License
@@ -37,6 +39,7 @@
 (require 'eslint-reader-quotes)
 (require 'eslint-reader-strict)
 (require 'eslint-reader-block-spacing)
+(require 'eslint-reader-space-before-function-paren)
 
 ;;; Padded Block rules
 
@@ -82,16 +85,6 @@ If PFX is provided, provide the character instead."
         (if pfx "\n" t)
         (if pfx "" nil))
       result)))
-
-
-(defun eslint-reader-space-before-function-paren (&optional pfx)
-  "Whether or not to add space before function paren.
-Given a PFX it will return the character to insert instead."
-  (interactive "P")
-  (let ((rule (plist-get (eslint-reader--read) :space-before-function-paren)))
-    (if (and (vectorp rule) (equal (elt rule 1) "always"))
-      (if pfx " " t)
-      (if pfx "" nil))))
 
 (provide 'eslint-reader)
 
