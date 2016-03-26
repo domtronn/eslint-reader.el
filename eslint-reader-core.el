@@ -72,9 +72,14 @@ When given an ESLINTRC file, it should locate this file over `flycheck-eslintrc`
 When given a PFX, return the character that should be used by
 that rule."
   (interactive "P")
-  (let ((rule-f (intern (format "eslint-reader-%s" rule)))
-        (rule-v (intern (format "eslint-reader-%s-default" rule))))
-    (if (eslint-reader?) (funcall rule-f pfx) (symbol-value rule-v))))
+  (let ((rule-f  (intern (format "eslint-reader-%s" rule)))
+        (rule-v  (intern (format "eslint-reader-%s-default" rule)))
+        (eslint? ))
+    (unless (fboundp rule-f) (error "Function for rule `%s` is not defined" rule))
+    (cond
+     ((eslint-reader?) (funcall rule-f pfx))
+     ((boundp rule-v)  (symbol-value rule-v))
+     (t nil))))
 
 (provide 'eslint-reader-core)
 

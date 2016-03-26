@@ -163,7 +163,7 @@
     (noflet ((eslint-reader? (&rest any) t)
              (eslint-reader-rule (pfx) (setq rule-call pfx)))
       (er? 'rule "bing")
-      (should (equal rule-call "bing")))))
+      (should (equal "bing" rule-call)))))
 
 (ert-deftest should-return-default-values-when-an-eslint-file-is-not-found ()
   "When we do not correctly find an eslintrc file then, we should not try to read eslintrc file, and instead return the default character"
@@ -171,8 +171,18 @@
         (eslint-reader-rule-default "default rule value"))
     (noflet ((eslint-reader? (&rest any) nil)
              (eslint-reader-rule (pfx) (setq rule-call pfx)))
-      (should (equal (er? 'rule "bing") "default rule value"))
-      (should (equal rule-call "unchanged")))))
+      (should (equal "default rule value" (er? 'rule "bing")))
+      (should (equal "unchanged" rule-call)))))
+
+(ert-deftest should-error-if-no-rule-function-is-defined ()
+  "When there is not a rule function defined, we should throw an error"
+  (should-error (er? 'rule)))
+
+(ert-deftest should-return-nil-if-no-default-value-is-defined-when-an-eslint-file-is-not-found ()
+  "When we do not correctly find an eslintrc file and there is no default value for the rule call, we should just return nil"
+  (noflet ((eslint-reader? (&rest any) nil)
+           (eslint-reader-rule (&rest any) t))
+    (should (equal nil (er? 'rule "bing")))))
 
 ;;; eslint-reader-semi-test.el ends here
 ;; Local Variables:
