@@ -36,6 +36,44 @@
 	(let ((eslint-reader-quote-priority '(single backtick double)))
 	  (should (equal '("`" backtick) (eslint-reader--dominant-quotes))))))
 
+(ert-deftest should-return-the-dominant-quote-character-when-the-setting-is-off ()
+  "When the setting is off, we should use the most dominant character in the file"
+  (noflet ((eslint-reader--read (&rest any) '(:quotes 0)))
+	(with-temp-buffer
+	  (insert "''''''''''''''''''''```````````")
+	  (should (equal 'single (eslint-reader-quotes)))
+	  (should (equal "'" (eslint-reader-quotes t))))
+	(with-temp-buffer
+	  (insert "''''''''''''''''''''``````````````````````````````````````````")
+	  (should (equal 'backtick (eslint-reader-quotes)))
+	  (should (equal "`" (eslint-reader-quotes t)))))
+  (noflet ((eslint-reader--read (&rest any) '(:quotes [0 "single"])))
+	(with-temp-buffer
+	  (insert "``````")
+	  (should (equal 'backtick (eslint-reader-quotes)))
+	  (should (equal "`" (eslint-reader-quotes t))))))
+
+(ert-deftest should-return-the-right-setting-when-the-setting-is-on ()
+  "When the setting is on, we should return the correct character and quote style"
+  (let ((dominant-called nil))
+	(noflet ((eslint-reader--read (&rest any) '(:quotes [2 "single"]))
+			 (eslint-reader--dominant-quotes (&rest any) (setq dominant-called t)))
+	  (should-not dominant-called)
+	  (should (equal 'single (eslint-reader-quotes)))
+	  (should (equal "'" (eslint-reader-quotes t))))
+
+	(noflet ((eslint-reader--read (&rest any) '(:quotes [2 "double"]))
+			 (eslint-reader--dominant-quotes (&rest any) (setq dominant-called t)))
+	  (should-not dominant-called)
+	  (should (equal 'double (eslint-reader-quotes)))
+	  (should (equal "\"" (eslint-reader-quotes t))))
+
+	(noflet ((eslint-reader--read (&rest any) '(:quotes [2 "backtick"]))
+			 (eslint-reader--dominant-quotes (&rest any) (setq dominant-called t)))
+	  (should-not dominant-called)
+	  (should (equal 'backtick (eslint-reader-quotes)))
+	  (should (equal "`" (eslint-reader-quotes t))))))
+
 ;;; eslint-reader-quotes-test.el ends here
 ;; Local Variables:
 ;; quotes-tabs-mode: nil

@@ -37,6 +37,21 @@ Used for the default behaviour if quotes is not set or is set to consistent."
 							(-elem-index (cadadr other) eslint-reader-quote-priority)) matches)))
     (cadr (--max-by (> (car it) (car other)) sorted))))
 
+(defun eslint-reader-quotes (&optional pfx)
+  "What kind of quotes to use.
+When given a PFX, return the quote character instead."
+  (interactive "P")
+  (let* ((rule (eslint-reader--parse-rule :quotes))
+         (enabled (plist-get rule :enabled))
+         (setting (plist-get rule :setting)))
+	(cond
+	 ((and enabled (equal setting "single"))   (if pfx "'" 'single))
+	 ((and enabled (equal setting "double"))   (if pfx "\"" 'double))
+	 ((and enabled (equal setting "backtick")) (if pfx "`" 'backtick))
+	 ((not enabled)
+	  (let ((quotes (eslint-reader--dominant-quotes)))
+		(if pfx (car quotes) (cadr quotes)))))))
+
 (provide 'eslint-reader-quotes)
 
 ;;; eslint-reader-quotes.el ends here
