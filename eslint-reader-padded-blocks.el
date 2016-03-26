@@ -45,6 +45,18 @@ Given PFX it will return the character to enter"
   (interactive "P")
   (eslint-reader--blocks :blocks pfx))
 
+(defun eslint-reader-padded-blocks-switches (&optional pfx)
+  "Return the detailed rule for switch.
+Given PFX it will return the character to enter"
+  (interactive "P")
+  (eslint-reader--blocks :switches pfx))
+
+(defun eslint-reader-padded-blocks-classes (&optional pfx)
+  "Return the detailed rule for classes.
+Given PFX it will return the character to enter"
+  (interactive "P")
+  (eslint-reader--blocks :classes pfx))
+
 (defun eslint-reader--blocks (prop &optional pfx)
   "Get the property PROP for the detailed `padded-blocks`.
 Given PFX it will return the character instead."
