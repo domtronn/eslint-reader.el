@@ -12,7 +12,7 @@
 (ert-deftest should-return-as-expected-when-setting-is-on ()
   "When the `indent` rule is set on it should revert to the eslint defaults"
   (noflet ((eslint-reader--read (&rest any) '(:indent 2)))
-    (should (equal nil (eslint-reader-indent)))
+    (should (equal 'spaces (eslint-reader-indent)))
     (should (equal "    " (eslint-reader-indent t)))))
 
 (ert-deftest should-return-base-elisp-indentation-values-when-setting-is-off ()
@@ -21,26 +21,26 @@
     (let ((indent-tabs-mode nil)
           (js-indent-level 9)
           (expected-indent-char (make-string 9 ? )))
-      (should (equal indent-tabs-mode (eslint-reader-indent)))
+      (should (equal 'spaces (eslint-reader-indent)))
       (should (equal expected-indent-char (eslint-reader-indent t))))
     (let ((indent-tabs-mode t))
-      (should (equal indent-tabs-mode (eslint-reader-indent)))
+      (should (equal 'tabs (eslint-reader-indent)))
       (should (equal "	" (eslint-reader-indent t)))))
   (noflet ((eslint-reader--read (&rest any) '()))
 	(let ((indent-tabs-mode t))
-	  (should (equal indent-tabs-mode (eslint-reader-indent)))
+	  (should (equal 'tabs (eslint-reader-indent)))
       (should (equal "	" (eslint-reader-indent t))))))
 
 (ert-deftest should-return-as-expected-when-given-more-granularity ()
   "When the `indent` rule is on and has been set to tabs, it should return t and the tab character"
   (noflet ((eslint-reader--read (&rest any) '(:indent [2 "tab"])))
-    (should (equal t (eslint-reader-indent)))
+    (should (equal 'tabs (eslint-reader-indent)))
     (should (equal "	" (eslint-reader-indent t)))))
 
 (ert-deftest should-retun-as-expected-when-given-more-spaces-granulartiy ()
   "When the `indent` rule is on and has been set to a number, it should return nil and the correct spaced character"
   (noflet ((eslint-reader--read (&rest any) '(:indent [2 8])))
-    (should (equal nil (eslint-reader-indent)))
+    (should (equal 'spaces (eslint-reader-indent)))
     (should (equal "        " (eslint-reader-indent t)))))
 
 ;;; eslint-reader-indent-test.el ends here

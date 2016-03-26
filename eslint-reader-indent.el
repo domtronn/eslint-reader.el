@@ -42,15 +42,15 @@ When given a PFX, return the indentation character."
      ((not enabled)
       (if pfx
         (eslint-reader--make-elisp-indent-string)
-        indent-tabs-mode))
+        (if indent-tabs-mode 'tabs 'spaces)))
      ;; Tab character
      ((and enabled (equal setting "tab"))
-      (if pfx "	" t))
+      (if pfx "	" 'tabs))
      ;; Spaces of width equal to setting
      ((and enabled (numberp setting))
-      (if pfx (make-string setting ? ) nil))
+      (if pfx (make-string setting ? ) 'spaces))
      ;; Eslint defaults of 4 width space
-     (t (if pfx "    " nil)))))
+     (t (if pfx "    " 'spaces)))))
 
 (provide 'eslint-reader-indent)
 
