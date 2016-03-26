@@ -22,6 +22,24 @@
 
 ;;; Code:
 
+(require 'flycheck)
+(require 'json)
+
+(defun eslint-reader--read (&optional eslintrc)
+  "Read the ruleset of the closest eslint file.
+
+When given an ESLINTRC file, it should locate this file over `flycheck-eslintrc`."
+  (let* ((eslintrc (or eslintrc flycheck-eslintrc))
+
+         (eslint-loc (locate-dominating-file (buffer-file-name) eslintrc))
+         (eslint-path (format "%s/%s" eslint-loc eslintrc))
+
+         (json-object-type 'plist)
+         (json-plist (json-read-file eslint-path)))
+    (plist-get json-plist :rules)))
+
+(provide 'eslint-reader-core)
+
 ;;; eslint-reader-core.el ends here
 ;; Local Variables:
 ;; indent-tabs-mode: nil
