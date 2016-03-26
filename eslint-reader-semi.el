@@ -30,7 +30,7 @@
 Returns t if semi colons should be used, nil otherwise.
 Given a PFX it will return the semi colon character."
   (interactive "P")
-  (let* ((rule (eslint-reader-parse-rule :semi))
+  (let* ((rule (eslint-reader--parse-rule :semi))
          (enabled (plist-get rule :enabled))
          (setting (plist-get rule :setting)))
     (cond

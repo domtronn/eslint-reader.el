@@ -35,7 +35,8 @@
 (defun eslint-reader-indent (&optional pfx)
   "Whether or not eslint is using tabs.
 When given a PFX, return the indentation character."
-  (let* ((rule (eslint-reader-parse-rule :indent))
+  (interactive "P")
+  (let* ((rule (eslint-reader--parse-rule :indent))
          (enabled (plist-get rule :enabled))
          (setting (plist-get rule :setting)))
     (cond
