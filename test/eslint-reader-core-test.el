@@ -137,9 +137,33 @@
      (should (equal nil (eslint-reader?))))))
 
 (ert-deftest should-return-nil-when-no-eslint-file-is-found ()
+  "When you cannot locate an eslintrc file it should return nil"
   (with-sandbox
    (noflet ((buffer-file-name (&rest any) (f-expand "test.el" sandbox-higher-path)))
      (should (equal nil (eslint-reader?))))))
+
+;; Actual reading functions
+
+(ert-deftest should-return-the-rule-when-an-eslint-file-is-found ()
+  "When appropriately finding an eslint file, it should call the appropiate rule function"
+  (let ((rule-1-called nil)
+        (rule-2-called nil))
+    (noflet ((eslint-reader? (&rest any) t)
+             (eslint-reader-rule-1 (&rest any) (setq rule-1-called t))
+             (eslint-reader-rule-2 (&rest any) (setq rule-2-called t)))
+      (er? 'rule-1)
+      (should rule-1-called)
+      (should-not rule-2-called)
+      (er? 'rule-2)
+      (should rule-2-called))))
+
+(ert-deftest should-return-the-rule-when-an-eslint-file-is-found ()
+  "When appropriately finding an eslint file, it should call the appropiate rule function with the prefix argument passed inthe `er?`"
+  (let ((rule-call nil))
+    (noflet ((eslint-reader? (&rest any) t)
+             (eslint-reader-rule (pfx) (setq rule-call pfx)))
+      (er? 'rule "bing")
+      (should (equal rule-call "bing")))))
 
 ;;; eslint-reader-semi-test.el ends here
 ;; Local Variables:

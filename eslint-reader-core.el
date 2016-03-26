@@ -67,6 +67,14 @@ When given an ESLINTRC file, it should locate this file over `flycheck-eslintrc`
        ((and eslint-loc (not jshint-loc)) t)
        ((not eslint-loc) nil)))))
 
+(defun er? (rule &optional pfx)
+  "Read RULE for the eslintrc file.
+When given a PFX, return the character that should be used by
+that rule."
+  (interactive)
+  (when (eslint-reader?)
+    (funcall (intern (format "eslint-reader-%s" rule)) pfx)))
+
 (provide 'eslint-reader-core)
 
 ;;; eslint-reader-core.el ends here
