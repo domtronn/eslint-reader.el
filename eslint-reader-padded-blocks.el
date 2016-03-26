@@ -34,10 +34,28 @@ Given a PFX it will return the padded-blocks colon character."
          (enabled (plist-get rule :enabled))
          (setting (plist-get rule :setting)))
     (cond
-     ((and enabled (equal setting "always")) (if pfx " " t))
+     ((and enabled (equal setting "always")) (if pfx "\n" t))
      ((and enabled (equal setting "never"))  (if pfx "" nil))
      ((and enabled setting (listp setting))  (if pfx setting 'detailed))
      (t                                      (if pfx eslint-reader-padded-blocks-default 'default)))))
+
+(defun eslint-reader-padded-blocks-blocks (&optional pfx)
+  "Return the detailed rule for blocks.
+Given PFX it will return the character to enter"
+  (interactive "P")
+  (eslint-reader--blocks :blocks pfx))
+
+(defun eslint-reader--blocks (prop &optional pfx)
+  "Get the property PROP for the detailed `padded-blocks`.
+Given PFX it will return the character instead."
+  (let* ((result (eslint-reader-padded-blocks pfx))
+         (setting (plist-get result prop)))
+
+    (if (not setting) (if (and (not pfx) (equal 'detailed result)) t result)
+      (cond
+       ((equal setting "always") (if pfx "\n" t))
+       ((equal setting "never")  (if pfx "" nil))
+       (t                        (if pfx eslint-reader-padded-blocks-default 'default))))))
 
 (provide 'eslint-reader-padded-blocks)
 

@@ -13,7 +13,7 @@
   "When the `padded-blocks` rule is set to `always` we should return t and the padded-blocks space char"
   (noflet ((eslint-reader--read (&rest any) '(:padded-blocks [2 "always"])))
     (should (equal t (eslint-reader-padded-blocks)))
-    (should (equal " " (eslint-reader-padded-blocks t)))))
+    (should (equal "\n" (eslint-reader-padded-blocks t)))))
 
 (ert-deftest padded-blocks-should-return-the-default-when-setting-is-always-but-disabled ()
   "When the `padded-blocks` rule is set to `always` but the rule is set to 0, we should return the default options"
@@ -57,11 +57,24 @@
       (should (equal "foobar" (eslint-reader-padded-blocks t))))))
 
 (ert-deftest padded-blocks-should-return-setting-when-more-detailed ()
-  "When the `padded-blocks` rule is not defined, we should return the defaults"
+  "When the `padded-blocks` rule is detailed we should return the expanded default"
   (noflet ((eslint-reader--read (&rest any) '(:padded-blocks [2 (1 2 3)])))
     (let ((eslint-reader-padded-blocks-default "foobar"))
       (should (equal 'detailed (eslint-reader-padded-blocks)))
       (should (equal '(1 2 3) (eslint-reader-padded-blocks t))))))
+
+(ert-deftest padded-blocks-should-return-the-correct-detailed-setting ()
+  "When the `padded-blocks` rule is detailed, the detailed function should return as expected"
+  (noflet ((eslint-reader--read (&rest any) '(:padded-blocks [2 (:blocks "always")])))
+    (should (equal t (eslint-reader-padded-blocks-blocks)))
+    (should (equal "\n" (eslint-reader-padded-blocks-blocks t)))))
+
+(ert-deftest padded-blocks-should-return-the-default-items-when-detailed-but-disabled ()
+  "When the `padded-blocks` rule is detailed, it should still adhere to the defaults"
+  (noflet ((eslint-reader--read (&rest any) '(:padded-blocks [0 (:blocks "always")])))
+    (let ((eslint-reader-padded-blocks-default "foobar"))
+      (should (equal 'default (eslint-reader-padded-blocks-blocks)))
+      (should (equal "foobar" (eslint-reader-padded-blocks-blocks t))))))
 
 ;;; eslint-reader-padded-blocks-test.el ends here
 ;; Local Variables:
