@@ -1,55 +1,60 @@
 <h1 align="center">ESLint Reader</h1>
 
-## eslint-reader.el
+## `eslint-reader.el`
 
-This library of utility functions designed to read the settings of
-your ESLint file to tell you how to format your code.  The intention
-is to use these functions to set local things like tab width,
-indentation style correctly for the project your in, or to perform
-snippet expansion with the correct spacing.
+A library of utility functions designed to read the settings of
+your [**ESLint**](http://eslint.org) file to help format code.  
+
+The intention is to use these functions to make project specific
+decisions on things like **tab width**, **indentation style**, or to
+perform dynamic snippet expansion with the correct **spacing**.
 
 ## Usage
 
 You can find a list of supported rules at the bottom of this
 readme. However, for any supported rule, there should be an
-interactive function of the form -
+interactive function of the form
 
 ```elisp
 eslint-reader-name-of-rule
 ```
 
 These functions should return `t` or `nil` based on whether that rule
-should is active.
+is active/whether it should be used etc.
 
 A more succint way of calling this library is through the use of the
-`eslint-reader?` function, which takes a rule symbol/string as its
-argument to call the associated rule function. This function also
-guards to check ESLint is found relative to the current file and that
-eslint takes precedence.
+`eslint-reader?` function, which takes a rule _symbol/string_ as its
+argument to call the associated rule function. 
 
 ```elisp
-(eslint-reader? 'space-before-function-paren) ;; Calls the rule for space-before-function-paren
-(eslint-reader? 'semi)                        ;; Calls the rule for whether to use semis
+(eslint-reader? 'space-before-function-paren) ;; Calls rule space-before-function-paren
+(eslint-reader? 'semi)                        ;; Calls rule for whether to use semis
 (eslint-reader?)                              ;; Returns whether eslint is active
 ```
+
+This function also guards to check **ESLint** is found relative to the
+current file and that **ESLint** takes precedence over other linters.
 
 There is also a shorter alias for this function as `er?`
 
 #### Prefix Arguments
 
 Calling any of the rule functions with a prefix argument will then
-provide you with the _character_ to insert for that rule, for example -
+provide you with the _character_ to insert for that rule, for example
 
 ```elisp
 (eslint-reader-semi t)   ;; Returns ';' if the rule says to use semi colons
 ```
 
-This can be used to make formatting similar.  There is also a shorter
+This can be used to make formatting similar.  
+
+There is also a shorter
 alias for this function called `er!?`
 
-#### Indent
+#### Indenting
 
-Indentation is a special case, there are _two_ functions describing how indentation is defined, these are -
+Indentation is a special case, there are _two_ functions describing
+how indentation is defined, these are as follows
 
 ```elisp
 eslint-reader-indent-tabs    ;; Returns whether to use tabs or nto
