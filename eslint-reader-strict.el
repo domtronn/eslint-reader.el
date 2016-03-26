@@ -42,7 +42,8 @@ characters."
 		 (qc (eslint-reader-quotes t)))
 	(cond
 	 ((and enabled (equal setting "never")) (if pfx "" nil))
-	 (t (if pfx (format "%suse strict%s" qc qc) t)))))
+	 (enabled (if pfx (format "%suse strict%s" qc qc) t))
+	 (t (if pfx (format "%suse strict%s" qc qc) 'default)))))
 
 (provide 'eslint-reader-strict)
 
