@@ -73,6 +73,23 @@ Returns nil if statement is not needed, otherwise t"
   (let ((rule (plist-get (eslint-reader-read) :block-spacing)))
     (if (vectorp rule) (equal (elt rule 1) "always") t)))
 
+(defun eslint-reader-space-before-function-paren ()
+  "Whether or not to add space before function paren."
+  (interactive)
+  (let ((rule (plist-get (eslint-reader-read) :space-before-function-paren)))
+    (if (vectorp rule) (equal (elt rule 1) "always") nil)))
+
+(defun eslint-reader--depth (path)
+  "Get the depth of PATH"
+  (length (split-string (expand-file-name path) "/")))
+
+(defun eslint-reader? ()
+  "Guard function to check whether you should be using eslint"
+  (let ((jshintrc-loc (locate-dominating-file (buffer-file-name) flycheck-jshintrc))
+        (eslintrc-loc (locate-dominating-file (buffer-file-name) flycheck-eslintrc)))
+    (when (and eslintrc-loc jshintrc-loc)
+      (> (eslint-reader--depth eslintrc-loc) (eslint-reader--depth jshintrc-loc)))))
+
 ;;; eslint-reader.el ends here
 ;; Local Variables:
 ;; indent-tabs-mode: nil
