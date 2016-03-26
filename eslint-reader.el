@@ -3,7 +3,8 @@
 ;; Copyright (C) 2016  Dominic Charlesworth <dgc336@gmail.com>
 
 ;; Author: Dominic Charlesworth <dgc336@gmail.com>
-;; Package-Requires: ((dash "2.12.1") (flycheck "0.16") (emacs "24.3") (js2-mode "))
+;; Version: 1.0.0
+;; Package-Requires: ((dash "20160306.1222") (flycheck "20160307.739") (emacs "24.3") (js2-mode "20160305.452"))
 ;; URL: https://github.com/domtronn/eslint-reader.el
 ;; Keywords: convenient, lisp
 

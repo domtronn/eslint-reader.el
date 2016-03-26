@@ -36,8 +36,8 @@ Used for the default behaviour if quotes is not set or is set to consistent."
 				`(,(count-matches "\"" (point-min) (point-max)) ("\"" double))
 				`(,(count-matches "`" (point-min) (point-max)) ("`" backtick))))
 		 (sorted
-		  (--sort (< (-elem-index (cadadr it) eslint-reader-quote-priority)
-					 (-elem-index (cadadr other) eslint-reader-quote-priority)) matches)))
+		  (--sort (< (-elem-index (cadr (cadr it)) eslint-reader-quote-priority)
+					 (-elem-index (cadr (cadr other)) eslint-reader-quote-priority)) matches)))
     (cadr (--max-by (> (car it) (car other)) sorted))))
 
 (defun eslint-reader-quotes (&optional pfx)
@@ -56,7 +56,6 @@ When given a PFX, return the quote character instead."
 		(if pfx (car quotes) (cadr quotes)))))))
 
 (provide 'eslint-reader-quotes)
-
 ;;; eslint-reader-quotes.el ends here
 ;; Local Variables:
 ;; indent-tabs-mode: nil

@@ -22,8 +22,6 @@
 
 ;;; Code:
 
-(require eslint-reader-quotes)
-
 (defun eslint-reader-strict-default ()
   "The default use strict value."
   (let ((qc (eslint-reader-quotes t)))

@@ -6,9 +6,12 @@
 (require 'noflet)
 (require 'flycheck)
 
-(defvar sandbox-base-path "/tmp/eslint-reader")
+(defvar sandbox-base-path (f-expand "eslint-reader" (getenv "TMPDIR")));
 (defvar sandbox-higher-path (f-expand "higher" sandbox-base-path))
 (defvar sandbox-lower-path (f-expand "lower" sandbox-higher-path))
+
+(setq flycheck-eslintrc ".eslintrc.json")
+(setq flycheck-jshintrc ".jshintrc.json")
 
 (defvar code-base-path (f-parent (f-parent (f-this-file))))
 (require 'eslint-reader-core (f-expand "eslint-reader-core.el" code-base-path))
@@ -36,13 +39,13 @@
 
 ;;; READ Suite
 
-(ert-deftest should-read-the-rules-from-closest-eslint-file ()
+(ert-deftest core-should-read-the-rules-from-closest-eslint-file ()
   "When calling the read function from the nested directory with only eslint files, it should return the eslint closest eslint file."
   (with-only-eslint
    (noflet ((buffer-file-name (&rest any) (f-expand "test.el" sandbox-lower-path)))
      (should (equal "eslint-1" (eslint-reader--read))))))
 
-(ert-deftest should-read-the-rules-from-closest-provided-file-as-override ()
+(ert-deftest core-should-read-the-rules-from-closest-provided-file-as-override ()
   "When calling the read function with the `eslintrc` option, it should find that file over default `flycheck-eslintrc` file"
   (with-only-eslint
    (noflet ((buffer-file-name (&rest any) (f-expand "test.el" sandbox-lower-path)))
@@ -50,7 +53,7 @@
 
 ;;; PARSING RULES suite
 
-(ert-deftest should-parse-a-given-rule-correctly-when-a-vector ()
+(ert-deftest core-should-parse-a-given-rule-correctly-when-a-vector ()
   "When calling `elsint-reader-parse-rule` with a certain rule, it should return consistently."
   (noflet ((eslint-reader--read (&rest any) '(:prop [2 "never"])))
     (let ((result (eslint-reader--parse-rule :prop)))
@@ -58,7 +61,7 @@
       (should (equal t (plist-get result :enabled)))
       (should (equal "never" (plist-get result :setting))))))
 
-(ert-deftest should-parse-a-given-rule-disabled-status-correctly ()
+(ert-deftest core-should-parse-a-given-rule-disabled-status-correctly ()
   "When calling `elsint-reader-parse-rule` with a certain rule, it should return the correct disabled status."
   (noflet ((eslint-reader--read (&rest any) '(:prop [0 "never"])))
     (let ((result (eslint-reader--parse-rule :prop)))
@@ -66,7 +69,7 @@
       (should (equal nil (plist-get result :enabled)))
       (should (equal "never" (plist-get result :setting))))))
 
-(ert-deftest should-parse-a-given-rule-correctly-when-property-is-nested ()
+(ert-deftest core-should-parse-a-given-rule-correctly-when-property-is-nested ()
   "When calling `elsint-reader-parse-rule` with a certain rule, it should return consistently."
   (noflet ((eslint-reader--read (&rest any) '(:prop [2 (:foo "bar" :bish "bash")])))
     (let ((result (eslint-reader--parse-rule :prop)))
@@ -74,7 +77,7 @@
       (should (equal t (plist-get result :enabled)))
       (should (equal '(:foo "bar" :bish "bash") (plist-get result :setting))))))
 
-(ert-deftest should-say-rule-is-disabled-when-it-is-not-defined ()
+(ert-deftest core-should-say-rule-is-disabled-when-it-is-not-defined ()
   "When calling `eslint-reader-parse-rule` with a rule that is not defined, it should return disabled"
   (noflet ((eslint-reader--read (&rest any) '()))
     (let ((result (eslint-reader--parse-rule :prop)))
@@ -112,19 +115,19 @@
       (f-write "{\"rules\":{\"name\":\"jshint\"}}" 'utf-8 jshint)
       ,@body)))
 
-(ert-deftest should-return-nil-when-not-in-a-buffer ()
+(ert-deftest core-should-return-nil-when-not-in-a-buffer ()
   "When the buffer reading eslint is not associated with a file, we should return nil"
   (with-jshint-closer-than-eslint
    (noflet ((buffer-file-name (&rest any) nil))
      (should (equal nil (eslint-reader?))))))
 
-(ert-deftest should-return-t-when-eslintrc-is-closer ()
+(ert-deftest core-should-return-t-when-eslintrc-is-closer ()
   "When the file reading eslint is closer to an eslintrc, we should return t"
   (with-eslint-closer-than-jshint
    (noflet ((buffer-file-name (&rest any) (f-expand "test.el" sandbox-lower-path)))
      (should (equal t (eslint-reader?))))))
 
-(ert-deftest should-adhere-to-prioritization-when-eslintrc-is-at-same-level-as-jshint ()
+(ert-deftest core-should-adhere-to-prioritization-when-eslintrc-is-at-same-level-as-jshint ()
   "When the file reading eslint is at the same level as the jshint file, we should obey `eslint-reader-prioritize-eslint` flag"
   (with-jshint-at-same-level-as-eslint
    (noflet ((buffer-file-name (&rest any) (f-expand "test.el" sandbox-lower-path)))
@@ -133,13 +136,13 @@
      (let ((eslint-reader-prioritize-eslint nil))
        (should (equal nil (eslint-reader?)))))))
 
-(ert-deftest should-return-nil-when-jshintrc-is-closer ()
+(ert-deftest core-should-return-nil-when-jshintrc-is-closer ()
   "When the file reading eslint is closer to a jshintrc, we should return nil"
   (with-jshint-closer-than-eslint
    (noflet ((buffer-file-name (&rest any) (f-expand "test.el" sandbox-lower-path)))
      (should (equal nil (eslint-reader?))))))
 
-(ert-deftest should-return-nil-when-no-eslint-file-is-found ()
+(ert-deftest core-should-return-nil-when-no-eslint-file-is-found ()
   "When you cannot locate an eslintrc file it should return nil"
   (with-sandbox
    (noflet ((buffer-file-name (&rest any) (f-expand "test.el" sandbox-higher-path)))
@@ -147,7 +150,7 @@
 
 ;; Actual reading functions
 
-(ert-deftest should-return-the-rule-when-an-eslint-file-is-found ()
+(ert-deftest core-should-return-the-rule-when-an-eslint-file-is-found ()
   "When appropriately finding an eslint file, it should call the appropiate rule function"
   (let ((rule-1-called nil)
         (rule-2-called nil))
@@ -156,11 +159,11 @@
              (eslint-reader-rule-2 (&rest any) (setq rule-2-called t)))
       (er? 'rule-1)
       (should rule-1-called)
-      (should-not rule-2-called)
+      (core-should-not rule-2-called)
       (er? 'rule-2)
       (should rule-2-called))))
 
-(ert-deftest should-return-the-rule-when-an-eslint-file-is-found ()
+(ert-deftest core-should-return-the-rule-when-an-eslint-file-is-found ()
   "When appropriately finding an eslint file, it should call the appropiate rule function with the prefix argument passed inthe `er?`"
   (let ((rule-call nil))
     (noflet ((eslint-reader? (&rest any) t)
@@ -168,7 +171,7 @@
       (er? 'rule "bing")
       (should (equal "bing" rule-call)))))
 
-(ert-deftest should-return-default-values-when-an-eslint-file-is-not-found ()
+(ert-deftest core-should-return-default-values-when-an-eslint-file-is-not-found ()
   "When we do not correctly find an eslintrc file then, we should not try to read eslintrc file, and instead return the default character"
   (let ((rule-call "unchanged")
         (eslint-reader-rule-default "default rule value"))
@@ -177,24 +180,24 @@
       (should (equal "default rule value" (er? 'rule "bing")))
       (should (equal "unchanged" rule-call)))))
 
-(ert-deftest should-return-evaluated-default-values-when-an-eslint-rule-is-not-found ()
+(ert-deftest core-should-return-evaluated-default-values-when-an-eslint-rule-is-not-found ()
   "When we not have an eslintrc file, we should evaluate the default function alias if its not a static value"
   (noflet ((eslint-reader? (&rest any) nil)
 		   (eslint-reader-rule-default (&rest any) "default rule value")
 		   (eslint-reader-rule (pfx) (setq rule-call pfx)))
 	(should (equal "default rule value" (er? 'rule "bing")))))
 
-(ert-deftest should-error-if-no-rule-function-is-defined ()
+(ert-deftest core-should-error-if-no-rule-function-is-defined ()
   "When there is not a rule function defined, we should throw an error"
   (should-error (er? 'rule)))
 
-(ert-deftest should-return-nil-if-no-default-value-is-defined-when-an-eslint-file-is-not-found ()
+(ert-deftest core-should-return-nil-if-no-default-value-is-defined-when-an-eslint-file-is-not-found ()
   "When we do not correctly find an eslintrc file and there is no default value for the rule call, we should just return nil"
   (noflet ((eslint-reader? (&rest any) nil)
            (eslint-reader-rule (&rest any) t))
     (should (equal nil (er? 'rule "bing")))))
 
-(ert-deftest should-return-nil-if-default-is-defined-but-no-prefix-is-given ()
+(ert-deftest core-should-return-nil-if-default-is-defined-but-no-prefix-is-given ()
   "When we query `er` which has a default value but everything is disabled/not present we should return nil"
   (noflet ((eslint-reader? (&rest any) nil)
 		   (eslint-reader-rule-default (&rest any) "default rule value")
