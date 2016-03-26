@@ -39,12 +39,19 @@ When given a PFX, return the indentation character."
          (enabled (plist-get rule :enabled))
          (setting (plist-get rule :setting)))
     (cond
+     ;; Fallback to elisp defaults
      ((not enabled)
       (if pfx
         (eslint-reader--make-elisp-indent-string)
         indent-tabs-mode))
-     ((and enabled (not setting))
-      (if pfx "    " nil)))))                      ;; Default 4 space indent and spaces
+     ;; Tab character
+     ((and enabled (equal setting "tab"))
+      (if pfx "	" t))
+     ;; Spaces of width equal to setting
+     ((and enabled (numberp setting))
+      (if pfx (make-string setting ? ) nil))
+     ;; Eslint defaults of 4 width space
+     (t (if pfx "    " nil)))))
 
 (provide 'eslint-reader-indent)
 

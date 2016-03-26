@@ -27,6 +27,18 @@
       (should (equal indent-tabs-mode (eslint-reader-indent)))
       (should (equal "	" (eslint-reader-indent t))))))
 
+(ert-deftest should-return-as-expected-when-given-more-granularity ()
+  "When the `indent` rule is on and has been set to tabs, it should return t and the tab character"
+  (noflet ((eslint-reader--read (&rest any) '(:indent [2 "tab"])))
+    (should (equal t (eslint-reader-indent)))
+    (should (equal "	" (eslint-reader-indent t)))))
+
+(ert-deftest should-retun-as-expected-when-given-more-spaces-granulartiy ()
+  "When the `indent` rule is on and has been set to a number, it should return nil and the correct spaced character"
+  (noflet ((eslint-reader--read (&rest any) '(:indent [2 8])))
+    (should (equal nil (eslint-reader-indent)))
+    (should (equal "        " (eslint-reader-indent t)))))
+
 ;;; eslint-reader-indent-test.el ends here
 ;; Local Variables:
 ;; indent-tabs-mode: nil
