@@ -12,28 +12,28 @@
 (ert-deftest strict-should-return-t-when-the-setting-is-on ()
   "When the `strict` rule is on, it should return t and the use strict string"
   (noflet ((eslint-reader--read (&rest any) '(:strict 2))
-		   (eslint-reader-quotes (&rest any) "<"))
+           (eslint-reader-quotes (&rest any) "<"))
     (should (equal t (eslint-reader-strict)))
     (should (equal "<use strict<" (eslint-reader-strict t)))))
 
 (ert-deftest strict-should-return-default-when-the-rule-is-off ()
   "When the `strict` rule is disabled then you should return the default"
   (noflet ((eslint-reader--read (&rest any) '(:strict 0))
-		   (eslint-reader-quotes (&rest any) "<"))
+           (eslint-reader-quotes (&rest any) "<"))
     (should (equal 'default (eslint-reader-strict)))
     (should (equal "<use strict<" (eslint-reader-strict t)))))
 
 (ert-deftest strict-should-return-default-when-the-rule-isnt-defined ()
   "When the `strict` rule is on, it should return t and the use strict string"
   (noflet ((eslint-reader--read (&rest any) '())
-		   (eslint-reader-quotes (&rest any) "<"))
+           (eslint-reader-quotes (&rest any) "<"))
     (should (equal 'default (eslint-reader-strict)))
     (should (equal "<use strict<" (eslint-reader-strict t)))))
 
 (ert-deftest strict-should-return-nil-when-the-setting-is-on-and-set-to-never ()
   "When the `strict` rule is on and set to `never`, it should return nil and provide a blank string"
   (noflet ((eslint-reader--read (&rest any) '(:strict [2 "never"]))
-		   (eslint-reader-quotes (&rest any) "<"))
+           (eslint-reader-quotes (&rest any) "<"))
     (should (equal nil (eslint-reader-strict)))
     (should (equal "" (eslint-reader-strict t)))))
 

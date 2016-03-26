@@ -32,12 +32,12 @@
   "Calculates the dominating quote style in the file.
 Used for the default behaviour if quotes is not set or is set to consistent."
   (let* ((matches
-		  (list `(,(count-matches "'" (point-min) (point-max)) ("'" single))
-				`(,(count-matches "\"" (point-min) (point-max)) ("\"" double))
-				`(,(count-matches "`" (point-min) (point-max)) ("`" backtick))))
-		 (sorted
-		  (--sort (< (-elem-index (cadr (cadr it)) eslint-reader-quote-priority)
-					 (-elem-index (cadr (cadr other)) eslint-reader-quote-priority)) matches)))
+          (list `(,(count-matches "'" (point-min) (point-max)) ("'" single))
+                `(,(count-matches "\"" (point-min) (point-max)) ("\"" double))
+                `(,(count-matches "`" (point-min) (point-max)) ("`" backtick))))
+         (sorted
+          (--sort (< (-elem-index (cadr (cadr it)) eslint-reader-quote-priority)
+                     (-elem-index (cadr (cadr other)) eslint-reader-quote-priority)) matches)))
     (cadr (--max-by (> (car it) (car other)) sorted))))
 
 (defun eslint-reader-quotes (&optional pfx)
@@ -47,13 +47,13 @@ When given a PFX, return the quote character instead."
   (let* ((rule (eslint-reader--parse-rule :quotes))
          (enabled (plist-get rule :enabled))
          (setting (plist-get rule :setting)))
-	(cond
-	 ((and enabled (equal setting "single"))   (if pfx "'" 'single))
-	 ((and enabled (equal setting "double"))   (if pfx "\"" 'double))
-	 ((and enabled (equal setting "backtick")) (if pfx "`" 'backtick))
-	 ((not enabled)
-	  (let ((quotes (eslint-reader--dominant-quotes)))
-		(if pfx (car quotes) (cadr quotes)))))))
+    (cond
+     ((and enabled (equal setting "single"))   (if pfx "'" 'single))
+     ((and enabled (equal setting "double"))   (if pfx "\"" 'double))
+     ((and enabled (equal setting "backtick")) (if pfx "`" 'backtick))
+     ((not enabled)
+      (let ((quotes (eslint-reader--dominant-quotes)))
+        (if pfx (car quotes) (cadr quotes)))))))
 
 (provide 'eslint-reader-quotes)
 ;;; eslint-reader-quotes.el ends here

@@ -28,8 +28,8 @@
 (defun eslint-reader-space-before-function-paren (&optional pfx)
     "Whether or not to add space before function paren.
 Given a PFX it will return the character to insert instead."
-	(interactive "P")
-	(let* ((rule (eslint-reader--parse-rule :space-before-function-paren))
+  (interactive "P")
+  (let* ((rule (eslint-reader--parse-rule :space-before-function-paren))
          (enabled (plist-get rule :enabled))
          (setting (plist-get rule :setting)))
     (cond

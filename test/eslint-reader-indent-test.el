@@ -27,8 +27,8 @@
       (should (equal 'tabs (eslint-reader-indent)))
       (should (equal "	" (eslint-reader-indent t)))))
   (noflet ((eslint-reader--read (&rest any) '()))
-	(let ((indent-tabs-mode t))
-	  (should (equal 'tabs (eslint-reader-indent)))
+    (let ((indent-tabs-mode t))
+      (should (equal 'tabs (eslint-reader-indent)))
       (should (equal "	" (eslint-reader-indent t))))))
 
 (ert-deftest should-return-as-expected-when-given-more-granularity ()

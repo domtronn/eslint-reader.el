@@ -25,7 +25,7 @@
 (defun eslint-reader-strict-default ()
   "The default use strict value."
   (let ((qc (eslint-reader-quotes t)))
-	(format "%suse strict%s" qc qc)))
+    (format "%suse strict%s" qc qc)))
 
 (defun eslint-reader-strict (&optional pfx)
   "Whether or not you need a 'use strict' statement.
@@ -37,11 +37,11 @@ characters."
   (let* ((rule (eslint-reader--parse-rule :strict))
          (enabled (plist-get rule :enabled))
          (setting (plist-get rule :setting))
-		 (qc (eslint-reader-quotes t)))
-	(cond
-	 ((and enabled (equal setting "never")) (if pfx "" nil))
-	 (enabled (if pfx (format "%suse strict%s" qc qc) t))
-	 (t (if pfx (format "%suse strict%s" qc qc) 'default)))))
+         (qc (eslint-reader-quotes t)))
+    (cond
+     ((and enabled (equal setting "never")) (if pfx "" nil))
+     (enabled (if pfx (format "%suse strict%s" qc qc) t))
+     (t (if pfx (format "%suse strict%s" qc qc) 'default)))))
 
 (provide 'eslint-reader-strict)
 

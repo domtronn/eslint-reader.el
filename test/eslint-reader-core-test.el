@@ -183,9 +183,9 @@
 (ert-deftest core-should-return-evaluated-default-values-when-an-eslint-rule-is-not-found ()
   "When we not have an eslintrc file, we should evaluate the default function alias if its not a static value"
   (noflet ((eslint-reader? (&rest any) nil)
-		   (eslint-reader-rule-default (&rest any) "default rule value")
-		   (eslint-reader-rule (pfx) (setq rule-call pfx)))
-	(should (equal "default rule value" (er? 'rule "bing")))))
+           (eslint-reader-rule-default (&rest any) "default rule value")
+           (eslint-reader-rule (pfx) (setq rule-call pfx)))
+    (should (equal "default rule value" (er? 'rule "bing")))))
 
 (ert-deftest core-should-error-if-no-rule-function-is-defined ()
   "When there is not a rule function defined, we should throw an error"
@@ -200,7 +200,7 @@
 (ert-deftest core-should-return-nil-if-default-is-defined-but-no-prefix-is-given ()
   "When we query `er` which has a default value but everything is disabled/not present we should return nil"
   (noflet ((eslint-reader? (&rest any) nil)
-		   (eslint-reader-rule-default (&rest any) "default rule value")
+           (eslint-reader-rule-default (&rest any) "default rule value")
            (eslint-reader-rule (&rest any) t))
     (should (equal nil (er? 'rule)))))
 

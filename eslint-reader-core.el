@@ -26,7 +26,7 @@
 (require 'json)
 
 (defvar eslint-reader-prioritize-eslint t
-	"Whether to prioritize eslint when found alongside jshint.")
+  "Whether to prioritize eslint when found alongside jshint.")
 
 (defun eslint-reader--read (&optional eslintrc)
   "Read the ruleset of the closest eslint file.
