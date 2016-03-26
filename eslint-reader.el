@@ -39,53 +39,9 @@
 (require 'eslint-reader-semi)
 (require 'eslint-reader-quotes)
 (require 'eslint-reader-strict)
+(require 'eslint-reader-padded-blocks)
 (require 'eslint-reader-block-spacing)
 (require 'eslint-reader-space-before-function-paren)
-
-;;; Padded Block rules
-
-(defun eslint-reader-padded-blocks (&optional pfx)
-  "Whether to pad blocks of code.
-Given a PFX it will return the character to insert."
-  (interactive "P")
-  (let ((rule (plist-get (eslint-reader--read) :padded-blocks)))
-    (if (and rule (> (elt rule 0) 0))
-      (cond
-       ((equal (elt rule 1) "always") (if pfx "\n" t))
-       ((equal (elt rule 1) "never") (if pfx "" nil))
-       (t (elt rule 1)))
-      (if pfx "" nil))))
-
-(defun eslint-reader-padded-blocks-blocks (&optional pfx)
-  "Whether to pad actual blocks.
-This is the version for the more granular settings.
-If PFX is provided, provide the character"
-  (interactive "P")
-  (eslint-reader--padded-blocks :blocks pfx))
-
-(defun eslint-reader-padded-blocks-switches (&optional pfx)
-  "Whether to pad switch statements.
-If PFX is provided, provide the character"
-  (interactive "P")
-  (eslint-reader--padded-blocks :switches pfx))
-
-(defun eslint-reader-padded-blocks-classes (&optional pfx)
-  "Whether to pad classes.
-If PFX is provided, provide the character"
-  (interactive "P")
-  (eslint-reader--padded-blocks :classes pfx))
-
-(defun eslint-reader--padded-blocks (prop &optional pfx)
-  "Whether to pad PROP.
-This is the logic for the more granular settings.
-If PFX is provided, provide the character instead."
-  (let* ((result (eslint-reader-padded-blocks pfx))
-         (setting (plist-get result prop)))
-    (if (listp result)
-      (if (equal setting "always")
-        (if pfx "\n" t)
-        (if pfx "" nil))
-      result)))
 
 (provide 'eslint-reader)
 
