@@ -177,6 +177,13 @@
       (should (equal "default rule value" (er? 'rule "bing")))
       (should (equal "unchanged" rule-call)))))
 
+(ert-deftest should-return-evaluated-default-values-when-an-eslint-rule-is-not-found ()
+  "When we not have an eslintrc file, we should evaluate the default function alias if its not a static value"
+  (noflet ((eslint-reader? (&rest any) nil)
+		   (eslint-reader-rule-default (&rest any) "default rule value")
+		   (eslint-reader-rule (pfx) (setq rule-call pfx)))
+	(should (equal "default rule value" (er? 'rule "bing")))))
+
 (ert-deftest should-error-if-no-rule-function-is-defined ()
   "When there is not a rule function defined, we should throw an error"
   (should-error (er? 'rule)))
