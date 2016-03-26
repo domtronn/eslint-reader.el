@@ -38,6 +38,8 @@ Given a PFX it will return the semi colon character."
      ((and enabled (equal setting "never"))  (if pfx "" nil))
      (t                                      (if pfx eslint-reader-semi-default 'default)))))
 
+(provide 'eslint-reader-semi)
+
 ;;; eslint-reader-semi.el ends here
 ;; Local Variables:
 ;; indent-tabs-mode: nil

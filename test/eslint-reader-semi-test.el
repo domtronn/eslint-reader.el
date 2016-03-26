@@ -4,6 +4,9 @@
 (require 'ert)
 (require 'noflet)
 
+(require 'eslint-reader-core (f-expand "eslint-reader-core.el" (f-parent (f-parent (f-this-file)))))
+(require 'eslint-reader-semi (f-expand "eslint-reader-semi.el" (f-parent (f-parent (f-this-file)))))
+
 (ert-deftest should-return-as-expected-when-setting-is-on-always ()
   "When the `semi` rule is set to `always` we should return t and the semi colon char"
   (noflet ((eslint-reader--read (&rest any) '(:semi [2 "always"])))
