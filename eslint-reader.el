@@ -67,8 +67,7 @@ Returns nil if statement is not needed, otherwise t"
     (if (vectorp rule) (not (equal (elt rule 1) "never")) t)))
 
 (defun eslint-reader-block-spacing ()
-  "Whether or not you need a 'use strict' statement.
-Returns nil if statement is not needed, otherwise t"
+  "Whether or not you should have block spacing"
   (interactive)
   (let ((rule (plist-get (eslint-reader-read) :block-spacing)))
     (if (vectorp rule) (equal (elt rule 1) "always") t)))
@@ -83,12 +82,17 @@ Returns nil if statement is not needed, otherwise t"
   "Get the depth of PATH"
   (length (split-string (expand-file-name path) "/")))
 
-(defun eslint-reader? ()
-  "Guard function to check whether you should be using eslint"
-  (let ((jshintrc-loc (locate-dominating-file (buffer-file-name) flycheck-jshintrc))
-        (eslintrc-loc (locate-dominating-file (buffer-file-name) flycheck-eslintrc)))
-    (when (and eslintrc-loc jshintrc-loc)
-      (> (eslint-reader--depth eslintrc-loc) (eslint-reader--depth jshintrc-loc)))))
+(defalias 'er? 'eslint-reader?)
+(defun eslint-reader? (&optional f)
+  "Guard function to check whether you should be using eslint.
+Call the namespaced function rule F if criteria is met."
+  (when (buffer-file-name)
+    (let ((jshintrc-loc (locate-dominating-file (buffer-file-name) flycheck-jshintrc))
+          (eslintrc-loc (locate-dominating-file (buffer-file-name) flycheck-eslintrc)))
+      (when (or (and eslintrc-loc jshintrc-loc
+                     (> (eslint-reader--depth eslintrc-loc) (eslint-reader--depth jshintrc-loc)))
+                (and eslintrc-loc (not jshintrc-loc)))
+        (if f (funcall (intern (format "eslint-reader-%s" f))) t)))))
 
 ;;; eslint-reader.el ends here
 ;; Local Variables:
