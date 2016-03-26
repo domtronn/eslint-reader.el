@@ -6,19 +6,21 @@
 (require 'noflet)
 (require 'flycheck)
 
-(defvar sandbox-base-path (f-expand "eslint-reader" (getenv "TMPDIR")));
+(defvar sandbox-base-path (f-expand "eslint-reader" (getenv "TMPDIR")))
 (defvar sandbox-higher-path (f-expand "higher" sandbox-base-path))
 (defvar sandbox-lower-path (f-expand "lower" sandbox-higher-path))
-
-(setq flycheck-eslintrc ".eslintrc.json")
-(setq flycheck-jshintrc ".jshintrc.json")
 
 (defvar code-base-path (f-parent (f-parent (f-this-file))))
 (require 'eslint-reader-core (f-expand "eslint-reader-core.el" code-base-path))
 
+(unless flycheck-jshintrc (setq flycheck-jshintrc ".jshintrc"))
+(unless flycheck-eslintrc (setq flycheck-eslintrc ".eslintrc.json"))
+
 (defmacro with-sandbox (&rest body)
   "Evaluate BODY in an empty temporary directory."
-  `(let ((default-directory sandbox-base-path))
+  `(let ((default-directory sandbox-base-path)
+         (flycheck-jshintrc ".jshintrc")
+         (flycheck-eslintrc ".eslintrc.json"))
      (when (f-dir? sandbox-base-path) (f-delete sandbox-base-path :force))
      (f-mkdir sandbox-base-path)
      (f-mkdir sandbox-higher-path)
