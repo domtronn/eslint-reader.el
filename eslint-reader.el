@@ -28,75 +28,13 @@
 (require 'json)
 (require 'flycheck)
 
-(defun eslint-reader--read ()
-  "Read in the .eslintrc file as json."
-  (let* ((eslint-loc (locate-dominating-file (buffer-file-name) flycheck-eslintrc))
-         (eslint-path (format "%s/%s" eslint-loc flycheck-eslintrc))
-         (json-object-type 'plist)
-         (json-plist (json-read-file eslint-path)))
-    (plist-get json-plist :rules)))
+;; Core functions
+(require 'eslint-reader-core)
 
-(defun eslint-reader-parse-rule (prop)
-  "Parse the rule PROP."
-  (let ((rule (plist-get (eslint-reader--read) prop)))
-    (cond
-     ((vectorp rule) `(:enabled ,(> (elt rule 0) 0) :setting ,(elt rule 1)))
-     ((numberp rule) `(:enabled ,(> rule 0)))
-     ((eq nil rule)  '(:enabled nil)))))
-
-;; Rule Functions
-
-;; Called with prefix arguments, rule functions should return the
-;; stylised thing, e.g.  semi => ;
-
-(defun eslint-reader-indent-tabs ()
-  "Whether or not to use tabs."
-  (interactive)
-  (let ((rule (plist-get (eslint-reader--read) :indent)))
-    (cond
-     ((vectorp rule) (equal (elt rule 1) "tab"))  ;; Indenting set to tab
-     ((> rule 0) nil)                             ;; Rule is set to default
-     (t indent-tabs-mode))))                      ;; Rule is not there
-
-(defun eslint-reader-indent-width ()
-  "The indent width of spaces."
-  (interactive)
-  (let ((rule (plist-get (eslint-reader--read) :indent)))
-    (unless (eslint-reader-indent-tabs)
-      (if (vectorp rule) (elt rule 1) 4))))
-
-(defun eslint-reader-semi (&optional pfx)
-  "Whether to add semi colons.
-Returns t if semi colons should be used, nil otherwise.
-Given a PFX it will return the semi colon character."
-  (interactive "P")
-  (let ((rule (plist-get (eslint-reader--read) :semi)))
-    (if (and (vectorp rule) (equal (elt rule 1) "always"))
-        (if pfx ";" t)
-      (if pfx "" nil))))
-
-(defun eslint-reader-quotes (&optional pfx)
-  "The style of quotation used.
-Returns 'single, 'double or 'backtick.  When given a PFX, it will
-return the quote character to be used."
-  (interactive "P")
-  (let* ((rule     (plist-get (eslint-reader--read) :quotes))
-         (setting  (if (vectorp rule) (elt rule 0) rule))
-         (dominant (eslint-reader--dominant-quotes)))
-    (if (and rule (> setting 0))
-      (cond
-       ((equal (elt rule 1) "single") (if pfx "'" 'single))
-       ((equal (elt rule 1) "double") (if pfx "\"" 'double))
-       ((equal (elt rule 1) "backtick") (if pfx "`" 'backtick)))
-      (if pfx (car dominant) (cadr dominant)))))
-
-(defun eslint-reader--dominant-quotes ()
-  "Calculates the dominating quote style in the file.
-Used for the default behaviour if quotes is not set or is set to consistent."
-  (if (> (count-matches "\"" (point-min) (point-max))
-         (count-matches "'" (point-min) (point-max)))
-    '("\"" 'double)
-    '("'" 'single)))
+;; Rule functions
+(require 'eslint-reader-indent)
+(require 'eslint-reader-semi)
+(require 'eslint-reader-quotes)
 
 (defun eslint-reader-strict (&optional pfx)
   "Whether or not you need a 'use strict' statement.
@@ -174,28 +112,7 @@ Given a PFX it will return the character to insert instead."
       (if pfx " " t)
       (if pfx "" nil))))
 
-;; Calling Functions
-
-(defun eslint-reader--depth (path)
-  "Get the depth of PATH."
-  (length (split-string (expand-file-name path) "/")))
-
-(defalias 'er? 'eslint-reader?)
-(defun eslint-reader? (&optional f pfx)
-  "Guard function to check whether you should be using eslint.
-Call the namespaced function rule F if criteria is met.
-PFX is passed through to the rule functional call."
-  (when (buffer-file-name)
-    (let ((jshintrc-loc (locate-dominating-file (buffer-file-name) flycheck-jshintrc))
-          (eslintrc-loc (locate-dominating-file (buffer-file-name) flycheck-eslintrc)))
-      (when (or (and eslintrc-loc jshintrc-loc
-                     (>= (eslint-reader--depth eslintrc-loc) (eslint-reader--depth jshintrc-loc)))
-                (and eslintrc-loc (not jshintrc-loc)))
-        (if f (funcall (intern (format "eslint-reader-%s" f)) pfx) t)))))
-
-(defun er!? (f)
-  "Alias for passing prefix to `eslint-reader?` with `F`."
-  (eslint-reader? f t))
+(provide 'eslint-reader)
 
 ;;; eslint-reader.el ends here
 ;; Local Variables:
