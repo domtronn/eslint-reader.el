@@ -35,18 +35,7 @@
 (require 'eslint-reader-indent)
 (require 'eslint-reader-semi)
 (require 'eslint-reader-quotes)
-
-(defun eslint-reader-strict (&optional pfx)
-  "Whether or not you need a 'use strict' statement.
-Returns nil if statement is not needed, otherwise t.  When given
-a PFX it will return the string to insert with quote
-characters."
-  (interactive "P")
-  (let ((rule (plist-get (eslint-reader--read) :strict))
-        (qc   (eslint-reader-quotes t)))
-    (if (and (vectorp rule) (not (equal (elt rule 1) "never")))
-      (if pfx (format "%suse strict%s" qc qc) t)
-      (if pfx "" t))))
+(require 'eslint-reader-strict)
 
 (defun eslint-reader-block-spacing (&optional pfx)
   "Whether or not you should have block spacing.
