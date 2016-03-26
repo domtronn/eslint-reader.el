@@ -25,6 +25,9 @@
 (require 'flycheck)
 (require 'json)
 
+(defvar eslint-reader-prioritize-eslint t
+	"Whether to prioritize eslint when found alongside jshint.")
+
 (defun eslint-reader--read (&optional eslintrc)
   "Read the ruleset of the closest eslint file.
 
@@ -45,6 +48,24 @@ When given an ESLINTRC file, it should locate this file over `flycheck-eslintrc`
      ((vectorp rule) `(:enabled ,(> (elt rule 0) 0) :setting ,(elt rule 1)))
      ((numberp rule) `(:enabled ,(> rule 0)))
      ((eq nil rule)  '(:enabled nil)))))
+
+(defun eslint-reader--dir-depth (dir)
+  "Calculate the depth of DIR."
+  (length (split-string (expand-file-name dir) "/")))
+
+;; Callable Functions
+(defun eslint-reader? ()
+  "Guard function to check whether you should be using eslint from current file."
+  (when (buffer-file-name)
+    (let ((eslint-loc (locate-dominating-file (buffer-file-name) flycheck-eslintrc))
+          (jshint-loc (locate-dominating-file (buffer-file-name) flycheck-jshintrc)))
+      (cond
+       ((and eslint-loc jshint-loc)
+        (funcall (if eslint-reader-prioritize-eslint '>= '>)
+                 (eslint-reader--dir-depth eslint-loc)
+                 (eslint-reader--dir-depth jshint-loc)))
+       ((and eslint-loc (not jshint-loc)) t)
+       ((not eslint-loc) nil)))))
 
 (provide 'eslint-reader-core)
 

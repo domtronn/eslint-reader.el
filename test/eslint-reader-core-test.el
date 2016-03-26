@@ -6,27 +6,28 @@
 (require 'noflet)
 (require 'flycheck)
 
-(defvar root-test-path (f-dirname (f-this-file)))
-(defvar root-sandbox-path (f-expand "sandbox" root-test-path))
-(defvar root-nested-path (f-expand "nested1" root-sandbox-path))
+(defvar sandbox-base-path "/tmp/eslint-reader")
+(defvar sandbox-higher-path (f-expand "higher" sandbox-base-path))
+(defvar sandbox-lower-path (f-expand "lower" sandbox-higher-path))
 
 (defmacro with-sandbox (&rest body)
   "Evaluate BODY in an empty temporary directory."
-  `(let ((default-directory root-sandbox-path))
-     (when (f-dir? root-sandbox-path) (f-delete root-sandbox-path :force))
-     (f-mkdir root-sandbox-path)
-     (f-mkdir root-nested-path)
+  `(let ((default-directory sandbox-base-path))
+     (when (f-dir? sandbox-base-path) (f-delete sandbox-base-path :force))
+     (f-mkdir sandbox-base-path)
+     (f-mkdir sandbox-higher-path)
+     (f-mkdir sandbox-lower-path)
      ,@body
-     (f-delete root-sandbox-path :force)))
+     (f-delete sandbox-base-path :force)))
 
 (defmacro with-only-eslint (&rest body)
   "Create a temporary directory with just an eslintrc file in it"
-  `(let ((eslint-1 (f-expand flycheck-eslintrc root-nested-path))
-         (eslint-2 (f-expand flycheck-eslintrc root-sandbox-path))
-         (eslint-3 (f-expand ".my-eslintrc" root-sandbox-path)))
+  `(let ((eslint-1 (f-expand flycheck-eslintrc sandbox-lower-path))
+         (eslint-2 (f-expand flycheck-eslintrc sandbox-higher-path))
+         (eslint-3 (f-expand ".my-eslintrc" sandbox-higher-path)))
      (with-sandbox
       (f-write "{\"rules\":\"eslint-1\"}" 'utf-8 eslint-1)
-      (f-write "{\"rules\":\"eslint-1\"}" 'utf-8 eslint-1)
+      (f-write "{\"rules\":\"eslint-2\"}" 'utf-8 eslint-2)
       (f-write "{\"rules\":\"eslint-3\"}" 'utf-8 eslint-3)
       ,@body)))
 
@@ -35,13 +36,13 @@
 (ert-deftest should-read-the-rules-from-closest-eslint-file ()
   "When calling the read function from the nested directory with only eslint files, it should return the eslint closest eslint file."
   (with-only-eslint
-   (noflet ((buffer-file-name (&rest any) (f-expand "test.el" root-nested-path)))
+   (noflet ((buffer-file-name (&rest any) (f-expand "test.el" sandbox-lower-path)))
      (should (equal "eslint-1" (eslint-reader--read))))))
 
 (ert-deftest should-read-the-rules-from-closest-provided-file-as-override ()
   "When calling the read function with the `eslintrc` option, it should find that file over default `flycheck-eslintrc` file"
   (with-only-eslint
-   (noflet ((buffer-file-name (&rest any) (f-expand "test.el" root-nested-path)))
+   (noflet ((buffer-file-name (&rest any) (f-expand "test.el" sandbox-lower-path)))
      (should (equal "eslint-3" (eslint-reader--read ".my-eslintrc"))))))
 
 ;;; PARSING RULES suite
@@ -77,6 +78,68 @@
       (should (listp result))
       (should (equal nil (plist-get result :enabled)))
       (should (equal nil (plist-get result :setting))))))
+
+;; READER Suite
+
+
+(defmacro with-eslint-closer-than-jshint (&rest body)
+  "Create a temporary directory with an eslintrc file closer than a jshintrc in it"
+  `(let ((eslint (f-expand flycheck-eslintrc sandbox-lower-path))
+         (jshint (f-expand flycheck-jshintrc sandbox-higher-path)))
+     (with-sandbox
+      (f-write "{\"rules\":{\"name\":\"eslint\"}}" 'utf-8 eslint)
+      (f-write "{\"rules\":{\"name\":\"jshint\"}}" 'utf-8 jshint)
+      ,@body)))
+
+(defmacro with-jshint-closer-than-eslint (&rest body)
+  "Create a temporary directory with an jshintrc file closer than the eslintrc in it"
+  `(let ((eslint (f-expand flycheck-eslintrc sandbox-higher-path))
+         (jshint (f-expand flycheck-jshintrc sandbox-lower-path)))
+     (with-sandbox
+      (f-write "{\"rules\":{\"name\":\"eslint\"}}" 'utf-8 eslint)
+      (f-write "{\"rules\":{\"name\":\"jshint\"}}" 'utf-8 jshint)
+      ,@body)))
+
+(defmacro with-jshint-at-same-level-as-eslint (&rest body)
+  "Create a temporary directory with an eslintrc and jshintrc at the same level"
+  `(let ((eslint (f-expand flycheck-eslintrc sandbox-higher-path))
+         (jshint (f-expand flycheck-jshintrc sandbox-higher-path)))
+     (with-sandbox
+      (f-write "{\"rules\":{\"name\":\"eslint\"}}" 'utf-8 eslint)
+      (f-write "{\"rules\":{\"name\":\"jshint\"}}" 'utf-8 jshint)
+      ,@body)))
+
+(ert-deftest should-return-nil-when-not-in-a-buffer ()
+  "When the buffer reading eslint is not associated with a file, we should return nil"
+  (with-jshint-closer-than-eslint
+   (noflet ((buffer-file-name (&rest any) nil))
+     (should (equal nil (eslint-reader?))))))
+
+(ert-deftest should-return-t-when-eslintrc-is-closer ()
+  "When the file reading eslint is closer to an eslintrc, we should return t"
+  (with-eslint-closer-than-jshint
+   (noflet ((buffer-file-name (&rest any) (f-expand "test.el" sandbox-lower-path)))
+     (should (equal t (eslint-reader?))))))
+
+(ert-deftest should-adhere-to-prioritization-when-eslintrc-is-at-same-level-as-jshint ()
+  "When the file reading eslint is at the same level as the jshint file, we should obey `eslint-reader-prioritize-eslint` flag"
+  (with-jshint-at-same-level-as-eslint
+   (noflet ((buffer-file-name (&rest any) (f-expand "test.el" sandbox-lower-path)))
+     (let ((eslint-reader-prioritize-eslint t))
+       (should (equal t (eslint-reader?))))
+     (let ((eslint-reader-prioritize-eslint nil))
+       (should (equal nil (eslint-reader?)))))))
+
+(ert-deftest should-return-nil-when-jshintrc-is-closer ()
+  "When the file reading eslint is closer to a jshintrc, we should return nil"
+  (with-jshint-closer-than-eslint
+   (noflet ((buffer-file-name (&rest any) (f-expand "test.el" sandbox-lower-path)))
+     (should (equal nil (eslint-reader?))))))
+
+(ert-deftest should-return-nil-when-no-eslint-file-is-found ()
+  (with-sandbox
+   (noflet ((buffer-file-name (&rest any) (f-expand "test.el" sandbox-higher-path)))
+     (should (equal nil (eslint-reader?))))))
 
 ;;; eslint-reader-semi-test.el ends here
 ;; Local Variables:
