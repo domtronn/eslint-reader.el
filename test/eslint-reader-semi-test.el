@@ -4,8 +4,9 @@
 (require 'ert)
 (require 'noflet)
 
-(require 'eslint-reader-core (f-expand "eslint-reader-core.el" (f-parent (f-parent (f-this-file)))))
-(require 'eslint-reader-semi (f-expand "eslint-reader-semi.el" (f-parent (f-parent (f-this-file)))))
+(defvar code-base-path (f-parent (f-parent (f-this-file))))
+(require 'eslint-reader-core (f-expand "eslint-reader-core.el" code-base-path))
+(require 'eslint-reader-semi (f-expand "eslint-reader-semi.el" code-base-path))
 
 (ert-deftest should-return-as-expected-when-setting-is-on-always ()
   "When the `semi` rule is set to `always` we should return t and the semi colon char"

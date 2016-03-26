@@ -10,6 +10,9 @@
 (defvar sandbox-higher-path (f-expand "higher" sandbox-base-path))
 (defvar sandbox-lower-path (f-expand "lower" sandbox-higher-path))
 
+(defvar code-base-path (f-parent (f-parent (f-this-file))))
+(require 'eslint-reader-core (f-expand "eslint-reader-core.el" code-base-path))
+
 (defmacro with-sandbox (&rest body)
   "Evaluate BODY in an empty temporary directory."
   `(let ((default-directory sandbox-base-path))
