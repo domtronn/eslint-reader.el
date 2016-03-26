@@ -28,7 +28,7 @@
 (require 'json)
 (require 'flycheck)
 
-(defun eslint-reader-read ()
+(defun eslint-reader--read ()
   "Read in the .eslintrc file as json."
   (let* ((eslint-loc (locate-dominating-file (buffer-file-name) flycheck-eslintrc))
          (eslint-path (format "%s/%s" eslint-loc flycheck-eslintrc))
@@ -36,47 +36,76 @@
          (json-plist (json-read-file eslint-path)))
     (plist-get json-plist :rules)))
 
+;; Rule Functions
+
+;; Called with prefix arguments, rule functions should return the
+;; stylised thing, e.g.  semi => ;
+
 (defun eslint-reader-indent-tabs ()
   "Whether or not to use tabs."
   (interactive)
-  (let ((rule (plist-get (eslint-reader-read) :indent)))
+  (let ((rule (plist-get (eslint-reader--read) :indent)))
     (cond
-     ((vectorp rule) (equal (elt rule 1) "tab")) ;; Indenting set to tab
-     ((eq 2 rule) nil)                           ;; Rule is set to default
-     (t indent-tabs-mode))))                     ;; Rule is not there
+     ((vectorp rule) (equal (elt rule 1) "tab"))  ;; Indenting set to tab
+     ((> rule 0) nil)                             ;; Rule is set to default
+     (t indent-tabs-mode))))                      ;; Rule is not there
 
 (defun eslint-reader-indent-width ()
   "The indent width of spaces."
   (interactive)
-  (let ((rule (plist-get (eslint-reader-read) :indent)))
+  (let ((rule (plist-get (eslint-reader--read) :indent)))
     (unless (eslint-reader-indent-tabs)
       (if (vectorp rule) (elt rule 1) 4))))
 
-(defun eslint-reader-semi ()
+(defun eslint-reader-semi (&optional pfx)
   "Whether to add semi colons.
-Returns t if semi colons should be used, nil otherwise"
+Returns t if semi colons should be used, nil otherwise.
+Given a PFX it will return the semi colon character."
   (interactive)
-  (let ((rule (plist-get (eslint-reader-read) :semi)))
-    (if (vectorp rule) (equal (elt rule 1) "always") t)))
+  (let ((rule (plist-get (eslint-reader--read) :semi)))
+    (if (and (vectorp rule) (equal (elt rule 1) "always"))
+      (if pfx ";" t)
+      (if pfx "" nil))))
 
-(defun eslint-reader-strict ()
-  "Whether or not you need a 'use strict' statement.
-Returns nil if statement is not needed, otherwise t"
+(defun eslint-reader-quotes (&optional pfx)
+  "The style of quotation used.
+Returns 'single, 'double or 'backtick.  When given a PFX, it will
+return the quote character to be used."
   (interactive)
-  (let ((rule (plist-get (eslint-reader-read) :strict)))
-    (if (vectorp rule) (not (equal (elt rule 1) "never")) t)))
+  (let* ((rule    (plist-get (eslint-reader--read) :quotes))
+         (setting (if (vectorp rule) (elt rule 0) rule)))
+    (if (and rule (> setting 0))
+      (cond
+       ((equal (elt rule 1) "single") (if pfx "'" 'single))
+       ((equal (elt rule 1) "double") (if pfx "\"" 'double))
+       ((equal (elt rule 1) "backtick") (if pfx "`" 'backtick)))
+      (if pfx "'" 'single))))
+
+(defun eslint-reader-strict (&optional pfx)
+  "Whether or not you need a 'use strict' statement.
+Returns nil if statement is not needed, otherwise t.  When given
+a PFX it will return the string to insert with quote
+characters."
+  (interactive)
+  (let ((rule  (plist-get (eslint-reader--read) :strict))
+        (qc    (eslint-reader-quotes t)))
+    (if (and (vectorp rule) (not (equal (elt rule 1) "never")))
+      (if pfx (format "%suse strict%s" qc qc) t)
+      (if pfx "" t))))
 
 (defun eslint-reader-block-spacing ()
   "Whether or not you should have block spacing"
   (interactive)
-  (let ((rule (plist-get (eslint-reader-read) :block-spacing)))
+  (let ((rule (plist-get (eslint-reader--read) :block-spacing)))
     (if (vectorp rule) (equal (elt rule 1) "always") t)))
 
 (defun eslint-reader-space-before-function-paren ()
   "Whether or not to add space before function paren."
   (interactive)
-  (let ((rule (plist-get (eslint-reader-read) :space-before-function-paren)))
+  (let ((rule (plist-get (eslint-reader--read) :space-before-function-paren)))
     (if (vectorp rule) (equal (elt rule 1) "always") nil)))
+
+;; Calling Functions
 
 (defun eslint-reader--depth (path)
   "Get the depth of PATH"
