@@ -42,6 +42,8 @@
 (require 'eslint-reader-padded-blocks)
 (require 'eslint-reader-block-spacing)
 (require 'eslint-reader-space-before-function-paren)
+(require 'eslint-reader-space-before-blocks)
+(require 'eslint-reader-space-in-parens)
 
 (provide 'eslint-reader)
 
