@@ -107,5 +107,7 @@ function${1:$(when yas-modified-p " ")}$1`(er!? 'space-before-function-paren)`($
 * [space-before-blocks](http://eslint.org/docs/rules/space-before-blocks): require or disallow a space before blocks 
 * [space-before-function-parens](http://eslint.org/docs/rules/space-before-function-parens): require or disallow a space before function opening parenthesis 
 
-If there are rules you would to be supported, please raise an [Issue]() for a new rule.
+If there are rules you would to be supported, please raise an
+[Issue](https://github.com/domtronn/eslint-reader.el/issues/new) for a
+new rule.
 
