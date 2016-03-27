@@ -43,31 +43,30 @@ Given a PFX it will return the padded-blocks colon character."
   "Return the detailed rule for blocks.
 Given PFX it will return the character to enter"
   (interactive "P")
-  (eslint-reader--blocks :blocks pfx))
+  (eslint-reader--padded :blocks pfx))
 
-(defun eslint-reader-padded-blocks-switches (&optional pfx)
+(defun eslint-reader-padded-switches (&optional pfx)
   "Return the detailed rule for switch.
 Given PFX it will return the character to enter"
   (interactive "P")
-  (eslint-reader--blocks :switches pfx))
+  (eslint-reader--padded :switches pfx))
 
-(defun eslint-reader-padded-blocks-classes (&optional pfx)
+(defun eslint-reader-padded-classes (&optional pfx)
   "Return the detailed rule for classes.
 Given PFX it will return the character to enter"
   (interactive "P")
-  (eslint-reader--blocks :classes pfx))
+  (eslint-reader--padded :classes pfx))
 
-(defun eslint-reader--blocks (prop &optional pfx)
+(defun eslint-reader--padded (prop &optional pfx)
   "Get the property PROP for the detailed `padded-blocks`.
 Given PFX it will return the character instead."
-  (let* ((result (eslint-reader-padded-blocks pfx))
+  (let* ((result (eslint-reader-padded-blocks t))
          (setting (plist-get result prop)))
 
-    (if (not setting) (if (and (not pfx) (equal 'detailed result)) t result)
-      (cond
-       ((equal setting "always") (if pfx "\n" t))
-       ((equal setting "never")  (if pfx "" nil))
-       (t                        (if pfx eslint-reader-padded-blocks-default 'default))))))
+    (cond
+     ((equal setting "always") (if pfx "\n" t))
+     ((equal setting "never")  (if pfx "" nil))
+     (t                        (if pfx eslint-reader-padded-blocks-default 'default)))))
 
 (provide 'eslint-reader-padded-blocks)
 

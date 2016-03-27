@@ -67,7 +67,9 @@
   "When the `padded-blocks` rule is detailed, the detailed function should return as expected"
   (noflet ((eslint-reader--read (&rest any) '(:padded-blocks [2 (:blocks "always")])))
     (should (equal t (eslint-reader-padded-blocks-blocks)))
-    (should (equal "\n" (eslint-reader-padded-blocks-blocks t)))))
+    (should (equal "\n" (eslint-reader-padded-blocks-blocks t)))
+    (should (equal 'default (eslint-reader-padded-classes)))
+    (should (equal "" (eslint-reader-padded-classes t)))))
 
 (ert-deftest padded-blocks-should-return-the-default-items-when-detailed-but-disabled ()
   "When the `padded-blocks` rule is detailed, it should still adhere to the defaults"
