@@ -22,6 +22,13 @@
 
 ;;; Code:
 
+
+(defvar eslint-reader-padded-blocks-blocks-default ""
+  "Default value for the eslint rule for padded-blocks blocks rule.")
+(defvar eslint-reader-padded-blocks-switches-default ""
+  "Default value for the eslint rule for padded-blocks switches rule.")
+(defvar eslint-reader-padded-blocks-classes-default ""
+  "Default value for the eslint rule for padded-blocks classes rule.")
 (defvar eslint-reader-padded-blocks-default ""
   "Default value for the eslint rule for padded-blocks.")
 

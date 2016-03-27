@@ -22,6 +22,12 @@
 
 ;;; Code:
 
+(defvar 'eslint-reader-space-before-functions-default ""
+  "Default value for the eslint rule for space-before-blocks functions.")
+(defvar 'eslint-reader-space-before-keywords-default ""
+  "Default value for the eslint rule for space-before-blocks keywords.")
+(defvar 'eslint-reader-space-before-classes-default ""
+  "Default value for the eslint rule for space-before-blocks classes.")
 (defvar eslint-reader-space-before-blocks-default ""
   "Default value for the eslint rule for space-before-blocks.")
 

@@ -19,8 +19,8 @@ interactive function of the form
 eslint-reader-name-of-rule
 ```
 
-These functions should return `t` or `nil` based on whether that rule
-is active/whether it should be used etc.
+These functions should return `t`, `nil` or `default` based on whether that rule
+is active, disabled or unkown respectively.
 
 A more succint way of calling this library is through the use of the
 `eslint-reader?` function, which takes a rule _symbol/string_ as its
@@ -46,41 +46,66 @@ provide you with the _character_ to insert for that rule, for example
 (eslint-reader-semi t)   ;; Returns ';' if the rule says to use semi colons
 ```
 
-This can be used to make formatting similar.  
+This can be used for consistent formatting. 
 
-There is also a shorter
-alias for this function called `er!?`
+There is also a shorter alias for this function called `er!?`
 
-#### Indenting
+#### Granular Rules
 
-Indentation is a special case, there are _two_ functions describing
-how indentation is defined, these are as follows
+Some rules can become more granular, with the _setting_ being another
+JSON object, for example, the
+[`space-before-blocks`](http://eslint.org/docs/rules/space-before-blocks)
+rule. This can use `{ "functions": "always", "keywords": "never",
+"classes": "never" }` as its setting.
+
+In these circumstances, there will be a rule for each granular level
+as well as the top level rule, i.e.
 
 ```elisp
-eslint-reader-indent-tabs    ;; Returns whether to use tabs or nto
-eslint-reader-indent-width   ;; Returns the width of the space indentation
+eslint-reader-space-before-blocks
 
-(eslint-reader? 'indent-tabs)
-(eslint-reader? 'indent-width)
+eslint-reader-space-before-functions
+eslint-reader-space-before-keywords 
+eslint-reader-space-before-classes
 ```
+
+The main rule will return the `'detailed` symbol and the breakdown of
+settings in this case.
 
 #### Example Snippet
 
-Here is an example snippet which uses this library to decide whether
-or not to add a space before the function parens.
+Here is an example
+[`yasnippet`](https://capitaomorte.github.io/yasnippet/) which uses
+this library to decide how to properly format itself for JavaScript.
 
-It uses the `eslint` rule
+It uses the `eslint`
 [`space-before-function-paren`](http://eslint.org/docs/rules/space-before-function-paren)
-with the `eslint-reader?` function.
+and [`indent`](http://eslint.org/docs/rules/indent) rules with the
+`er!?` function.
 
 
 ```elisp
 # -*- mode: snippet -*-
-# name				: anonymous function
-# binding			: C-c C-c f
-# expand-env	: ((prepend-space nil))
+# name              : anonymous function
+# binding           : C-c C-c f
+# expand-env        : ((prepend-space nil))
 # --
-function${1:$(when yas-modified-p " ")}$1`(when (eslint-reader? 'space-before-function-paren) (insert " "))`($2) {
-  $0
+function${1:$(when yas-modified-p " ")}$1`(er!? 'space-before-function-paren)`($2) {
+`(er!? 'indent)`$0
 }
 ```
+
+## Supported Rules
+
+* [semi](http://eslint.org/docs/rules/semi): require or disallow use of semicolons instead of ASI 
+* [indent](http://eslint.org/docs/rules/indent): specify tab or space width for your code
+* [quotes](http://eslint.org/docs/rules/quotes): specify whether backticks, double or single quotes should be used
+* [strict](http://eslint.org/docs/rules/strict): require effective use of strict mode directives
+* [block-spacing](http://eslint.org/docs/rules/block-spacing): disallow or enforce spaces inside of single line blocks 
+* [padded-blocks](http://eslint.org/docs/rules/padded-blocks): enforce padding within blocks
+* [space-in-parens](http://eslint.org/docs/rules/space-in-parens): require or disallow spaces inside parentheses
+* [space-before-blocks](http://eslint.org/docs/rules/space-before-blocks): require or disallow a space before blocks 
+* [space-before-function-parens](http://eslint.org/docs/rules/space-before-function-parens): require or disallow a space before function opening parenthesis 
+
+If there are rules you would to be supported, please raise an [Issue]() for a new rule.
+
