@@ -24,10 +24,10 @@
 
 (require 'dash)
 
-(defvar eslint-reader-quote-priority '(double single backtick)
+(defvar eslint-reader-quote-priority '(single double backtick)
   "The priority order for `single` `double` and `backtick` quotes.")
 
-(defalias 'eslint-reader-quotes-default 'eslint-reader--dominant-quotes)
+(defun eslint-reader-quotes-default () (car (eslint-reader--dominant-quotes)))
 (defun eslint-reader--dominant-quotes ()
   "Calculates the dominating quote style in the file.
 Used for the default behaviour if quotes is not set or is set to consistent."
