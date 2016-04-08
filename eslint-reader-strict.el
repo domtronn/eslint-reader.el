@@ -34,10 +34,11 @@ Returns nil if statement is not needed, otherwise t.
 When given a PFX it will return the string to insert with quote
 characters."
   (interactive "P")
-  (let* ((rule (eslint-reader--parse-rule :strict))
+  (let* ((qc (eslint-reader-quotes t))
+         (rule (eslint-reader--parse-rule :strict))
          (enabled (plist-get rule :enabled))
-         (setting (plist-get rule :setting))
-         (qc (eslint-reader-quotes t)))
+         (setting (plist-get rule :setting)))
+
     (cond
      ((and enabled (equal setting "never")) (if pfx "" nil))
      (enabled (if pfx (format "%suse strict%s" qc qc) t))

@@ -34,7 +34,7 @@
 When given an ESLINTRC file, it should locate this file over `flycheck-eslintrc`."
   (let* ((eslintrc (or eslintrc flycheck-eslintrc))
 
-         (eslint-loc (locate-dominating-file (buffer-file-name) eslintrc))
+         (eslint-loc (locate-dominating-file (eslint-reader--base-path) eslintrc))
          (eslint-path (format "%s/%s" eslint-loc eslintrc))
 
          (json-object-type 'plist)
@@ -53,19 +53,23 @@ When given an ESLINTRC file, it should locate this file over `flycheck-eslintrc`
   "Calculate the depth of DIR."
   (length (split-string (expand-file-name dir) "/")))
 
+(defun eslint-reader--base-path ()
+  "Get the base path for finding the eslintrc."
+  (or (buffer-file-name) (getenv "HOME")))
+
 ;; Callable Functions
 (defun eslint-reader? ()
   "Guard function to check whether you should be using eslint from current file."
-  (when (buffer-file-name)
-    (let ((eslint-loc (locate-dominating-file (buffer-file-name) flycheck-eslintrc))
-          (jshint-loc (locate-dominating-file (buffer-file-name) flycheck-jshintrc)))
-      (cond
-       ((and eslint-loc jshint-loc)
-        (funcall (if eslint-reader-prioritize-eslint '>= '>)
-                 (eslint-reader--dir-depth eslint-loc)
-                 (eslint-reader--dir-depth jshint-loc)))
-       ((and eslint-loc (not jshint-loc)) t)
-       ((not eslint-loc) nil)))))
+  (let ((eslint-loc (locate-dominating-file (eslint-reader--base-path) flycheck-eslintrc))
+        (jshint-loc (locate-dominating-file (eslint-reader--base-path) flycheck-jshintrc)))
+
+    (cond
+     ((and eslint-loc jshint-loc)
+      (funcall (if eslint-reader-prioritize-eslint '>= '>)
+               (eslint-reader--dir-depth eslint-loc)
+               (eslint-reader--dir-depth jshint-loc)))
+     ((and eslint-loc (not jshint-loc)) t)
+     ((not eslint-loc) nil))))
 
 (defun er? (rule &optional pfx)
   "Read RULE for the eslintrc file.
