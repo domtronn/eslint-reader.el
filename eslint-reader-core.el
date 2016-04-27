@@ -45,9 +45,13 @@ When given an ESLINTRC file, it should locate this file over `flycheck-eslintrc`
   "Parse the rule PROP."
   (let ((rule (plist-get (eslint-reader--read) prop)))
     (cond
-     ((vectorp rule) `(:enabled ,(> (elt rule 0) 0) :setting ,(elt rule 1)))
-     ((numberp rule) `(:enabled ,(> rule 0)))
+     ((vectorp rule) `(:enabled ,(eslint-reader--enabled (elt rule 0)) :setting ,(elt rule 1)))
+     ((numberp rule) `(:enabled ,(eslint-reader--enabled rule)))
      ((eq nil rule)  '(:enabled nil)))))
+
+(defun eslint-reader--enabled (rule)
+  "Wrap up logic to determine whether RULE is `on` or `off`."
+  (if (stringp rule) (not (equal rule "off")) (> rule 0)))
 
 (defun eslint-reader--dir-depth (dir)
   "Calculate the depth of DIR."
