@@ -117,12 +117,6 @@
       (f-write "{\"rules\":{\"name\":\"jshint\"}}" 'utf-8 jshint)
       ,@body)))
 
-(ert-deftest core-should-return-nil-when-not-in-a-buffer ()
-  "When the buffer reading eslint is not associated with a file, we should return nil"
-  (with-jshint-closer-than-eslint
-   (noflet ((buffer-file-name (&rest any) nil))
-     (should (equal nil (eslint-reader?))))))
-
 (ert-deftest core-should-return-t-when-eslintrc-is-closer ()
   "When the file reading eslint is closer to an eslintrc, we should return t"
   (with-eslint-closer-than-jshint
