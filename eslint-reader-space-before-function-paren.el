@@ -22,7 +22,7 @@
 
 ;;; Code:
 
-(defvar eslint-reader-space-before-function-paren-default ""
+(defvar eslint-reader-space-before-function-paren-default " "
   "Default value for the eslint rule for space-before-function-paren.")
 
 (defun eslint-reader-space-before-function-paren (&optional pfx)
@@ -41,5 +41,5 @@ Given a PFX it will return the character to insert instead."
 
 ;;; eslint-reader-space-before-function-paren.el ends here
 ;; Local Variables:
-;; space-before-function-paren-tabs-mode: nil
+;; indent-tabs-mode: nil
 ;; End:

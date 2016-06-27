@@ -22,7 +22,7 @@
 
 ;;; Code:
 
-(defvar eslint-reader-semi-default ";"
+(defvar eslint-reader-semi-default ""
   "Default value for the eslint rule for semi.")
 
 (defun eslint-reader-semi (&optional pfx)
