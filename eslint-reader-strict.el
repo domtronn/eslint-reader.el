@@ -24,8 +24,7 @@
 
 (defun eslint-reader-strict-default ()
   "The default use strict value."
-  (let ((qc (eslint-reader-quotes t)))
-    (format "%suse strict%s" qc qc)))
+  "")
 
 (defun eslint-reader-strict (&optional pfx)
   "Whether or not you need a 'use strict' statement.
@@ -42,7 +41,7 @@ characters."
     (cond
      ((and enabled (equal setting "never")) (if pfx "" nil))
      (enabled (if pfx (format "%suse strict%s" qc qc) t))
-     (t (if pfx (format "%suse strict%s" qc qc) 'default)))))
+     (t (if pfx (eslint-reader-strict-default) nil)))))
 
 (provide 'eslint-reader-strict)
 
