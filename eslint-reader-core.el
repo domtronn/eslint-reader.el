@@ -28,18 +28,32 @@
 (defvar eslint-reader-prioritize-eslint t
   "Whether to prioritize eslint when found alongside jshint.")
 
+(defvar eslint-reader-config-cache '()
+  "A cache of all of the eslint configs that have been created.")
+
+(defun eslint-reader--read-from-cache (path)
+  "Read the config for PATH from `eslint-reader-config-cache'.
+
+If it does not exist, read the config and add it to the cache."
+  (let* ((expanded-path path)
+         (eslint-cache-config (assoc expanded-path eslint-reader-config-cache))
+         (eslint-config-cmd (format "eslint --print-config %s" default-directory))
+
+         (json-object-type 'plist))
+    (unless eslint-cache-config
+      (add-to-list 'eslint-reader-config-cache
+                   `(,expanded-path . ,(json-read-from-string (shell-command-to-string eslint-config-cmd)))))
+    (cdr (assoc expanded-path eslint-reader-config-cache))))
+
 (defun eslint-reader--read (&optional eslintrc)
   "Read the ruleset of the closest eslint file.
 
 When given an ESLINTRC file, it should locate this file over `flycheck-eslintrc`."
   (let* ((eslintrc (or eslintrc flycheck-eslintrc))
-
          (eslint-loc (locate-dominating-file (eslint-reader--base-path) eslintrc))
-         (eslint-path (format "%s/%s" eslint-loc eslintrc))
 
-         (json-object-type 'plist)
-         (json-plist (json-read-file eslint-path)))
-    (plist-get json-plist :rules)))
+         (eslint-config (eslint-reader--read-from-cache eslint-loc)))
+    (plist-get eslint-config :rules)))
 
 (defun eslint-reader--parse-rule (prop)
   "Parse the rule PROP."
